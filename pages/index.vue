@@ -2,6 +2,7 @@
     <div>
         <HeroSection/>
         <HowItWorks/>
+        <FeaturesServices/>
     </div>
 </template>
 
