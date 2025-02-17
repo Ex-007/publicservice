@@ -1,6 +1,6 @@
 <template>
     <div>
-        <h3>The support Page</h3>
+        <h1>This is the notification page</h1>
     </div>
 </template>
 

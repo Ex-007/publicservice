@@ -1,6 +1,6 @@
 <template>
     <div>
-        <h3>WELCOME TO THE DASHBOARD</h3>
+        <h1>This is the profile page</h1>
     </div>
 </template>
 
