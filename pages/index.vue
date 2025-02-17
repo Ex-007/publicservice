@@ -1,5 +1,8 @@
 <template>
-    <HeroSection/>
+    <div>
+        <HeroSection/>
+        <HowItWorks/>
+    </div>
 </template>
 
 <script setup>
