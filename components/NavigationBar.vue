@@ -85,7 +85,7 @@
     { name: "Home", path: "/", icon: "fa fa-home" },
     { name: "About Us", path: "/About", icon: "fa fa-user" },
     { name: "Notifications", path: "/Notifications", icon: "fa fa-bell" },
-    { name: "Profile", path: "/Profile", icon: "fa fa-heart" },
+    { name: "Support", path: "/Support", icon: "fa fa-heart" },
   ];
   
   // Function to check if a link is active
