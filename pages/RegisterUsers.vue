@@ -1,21 +1,17 @@
 <template>
-    <div class="overall">
+<div class="overall">
         <!-- REGISTRATION -->
         <div class="formDetails" v-show="showRegistration">
-            <h3>Don't have an account? Register as a Provider</h3>
-            <h3>Register as a User? <nuxt-link to="/RegisterUsers">User</nuxt-link></h3>
+            <h3>Don't have an account? Register as a User</h3>
+            <h3>Register as a Service Provider? <nuxt-link to="/Account">Service Provider</nuxt-link></h3>
             <input type="text" placeholder="Full Name">
             <input type="text" placeholder="Phone number">
             <input type="email" placeholder="Email">
-            <input type="number" placeholder="Years of Experience">
             <input type="text" placeholder="Address">
-            <textarea placeholder="Short Description"></textarea>
             <select>
-                <option>Service Type</option>
-                <option>Mechanic</option>
-                <option>Tailor</option>
-                <option>HairDresser</option>
-                <option>Plumber</option>
+                <option>Gender</option>
+                <option>Male</option>
+                <option>Female</option>
             </select>
             <input type="password" placeholder="Password">
             <input type="password" placeholder="Confirm Password">
@@ -84,7 +80,7 @@
 </script>
 
 <style scoped>
-    span{
+     span{
         text-decoration: underline;
         cursor: pointer;
     }
@@ -96,7 +92,7 @@
         gap: 10px;
     }
     .already>button{
-        background-color: blue;
+        background-color: #007bff;
     }
     .overall{
         display: flex;
@@ -155,5 +151,4 @@
         color: #666;
         text-align: center;
     }
-
 </style>

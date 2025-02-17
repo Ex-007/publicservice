@@ -95,16 +95,6 @@
         text-align: center;
     }
 
-    /* .saidAbout{
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        gap: 10px;
-        background-color: antiquewhite;
-        color : green;
-        padding: 0 0 40px 0;
-    }  */
-
 </style>
 
 

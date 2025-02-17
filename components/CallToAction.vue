@@ -66,6 +66,8 @@
   }
   
   .step:hover {
+    /* background-color: #007bff;
+    color: white; */
     transform: translateY(-5px);
   }
   

@@ -83,7 +83,7 @@
   // List of navigation links
   const links = [
     { name: "Home", path: "/", icon: "fa fa-home" },
-    { name: "Account", path: "/Account", icon: "fa fa-user" },
+    { name: "About Us", path: "/About", icon: "fa fa-user" },
     { name: "Notifications", path: "/Notifications", icon: "fa fa-bell" },
     { name: "Profile", path: "/Profile", icon: "fa fa-heart" },
   ];

@@ -8,9 +8,5 @@ html, body{
     width: 100%;
     height: 100%;
     overflow-x: hidden;
-    background-image: linear-gradient(to bottom, #786477 40%, 
-    #242419 70%,
-    #447644 100%,
-    rgb(26, 49, 195));
 font-family: 'Courier New', Courier, monospace;
 }
