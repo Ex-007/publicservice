@@ -3,6 +3,7 @@
         <HeroSection/>
         <HowItWorks/>
         <FeaturesServices/>
+        <CallToAction/>
     </div>
 </template>
 
