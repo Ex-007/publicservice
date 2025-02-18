@@ -3,12 +3,13 @@
       <!-- Provider Header -->
       <div class="provider-header">
         <img src="/public/img/mechanic.jpeg" alt="Provider Image" class="profile-image" />
-        <h2>
+        <h2 class="checkVeri">
           Adebayo Adewale
           <span class="verified">✔️ Verified</span>
         </h2>
-        <p class="service-type"> mechanic</p>
+        <p class="service-type"> Mechanic</p>
         <p class="distance">📍 5 km away</p>
+        <p class="distance">{{ id }}</p>
       </div>
   
       <!-- Provider Information -->
@@ -72,8 +73,20 @@
   </template>
   
   <script setup>
-    import {useRoute} from 'vue-router';
+      import { useRouter, useRoute } from 'vue-router'
     const router = useRouter()
+    const route = useRoute()
+
+    const {id} = route.params;
+
+    // const startChat = () => {
+    //   route.push(`/chats/${id}`);
+    // };
+    const startChat = () => {
+    //     alert('i am here');
+      router.push('/chats/123');
+        // router.push('/Account');
+    };
   </script>
   
   <style scoped>
@@ -210,6 +223,19 @@
   .map-placeholder {
     height: 200px;
     background: #d6d6d6;
+  }
+
+  @media (max-width: 768px){
+    .checkVeri{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin: 5px 0;
+    }
+    .service-type {
+    font-size: 22px;
+    font-weight: bold;
+  }
   }
   </style>
   
