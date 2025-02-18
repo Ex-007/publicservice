@@ -12,9 +12,9 @@
           <h3>Quick Links</h3>
           <ul>
             <li><nuxt-link to="/" class="routerMove"><i class="fa fa-home"></i>Home</nuxt-link></li>
-            <li><nuxt-link to="/Account" class="routerMove"><i class="fa fa-user"></i>Account</nuxt-link></li>
+            <li><nuxt-link to="/About" class="routerMove"><i class="fa fa-user"></i>About Us</nuxt-link></li>
             <li><nuxt-link to="/Notifications" class="routerMove"><i class="fa fa-bell"></i>Notifications</nuxt-link></li>
-            <li><nuxt-link to="/Profile" class="routerMove"><i class="fa fa-heart"></i>Profile</nuxt-link></li>
+            <li><nuxt-link to="/Support" class="routerMove"><i class="fa fa-heart"></i>Support</nuxt-link></li>
           </ul>
         </div>
   

@@ -9,14 +9,14 @@
             <div class="icon">
               <i class="fa fa-user"></i>
             </div>
-            <button class="primary-btn">Join</button>
+            <button class="primary-btn" @click='accountPage'>Join</button>
           </div>
   
           <div class="step">
             <div class="icon">
               <i class="fa fa-user"></i>
             </div>
-            <button class="primary-btn">Search</button>
+            <button class="primary-btn" @click="userPage">Search</button>
           </div>
         </div>
       </div>
@@ -24,8 +24,18 @@
   </template>
   
   <script setup>
+      import { useRouter } from 'vue-router'
+    const router = useRouter()
 
+    const accountPage = () => {
+        router.push('/Account')
+    }
+
+    const userPage = () => {
+        router.push('/RegisterUsers')
+    }
 </script>
+
   <style scoped>
   .call-to-action {
     padding: 80px 20px;

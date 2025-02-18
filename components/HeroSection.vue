@@ -7,14 +7,24 @@
                 Instantly connect with mechanics, plumbers, tailors, architects, developers and more!
             </p>
             <div class="hero-buttons">
-                <button class="primary-btn">Find a Provider</button>
-                <button class="secondary-btn">Join as a Provider</button>
+                <button class="primary-btn" @click='accountPage'>Find a Provider</button>
+                <button class="secondary-btn" @click="userPage">Join as a Provider</button>
             </div>
         </div>
     </section>
 </template>
 
 <script setup>
+    import { useRouter } from 'vue-router'
+    const router = useRouter()
+
+    const accountPage = () => {
+        router.push('/Account')
+    }
+
+    const userPage = () => {
+        router.push('/RegisterUsers')
+    }
 
 </script>
 
