@@ -3,23 +3,43 @@
         <!-- REGISTRATION -->
         <div class="formDetails" v-show="showRegistration">
             <h3>Don't have an account? Register as a Provider</h3>
+
             <h3>Register as a User? <nuxt-link to="/RegisterUsers">User</nuxt-link></h3>
-            <input type="text" placeholder="Full Name">
-            <input type="text" placeholder="Phone number">
-            <input type="email" placeholder="Email">
-            <input type="number" placeholder="Years of Experience">
-            <input type="text" placeholder="Address">
-            <textarea placeholder="Short Description"></textarea>
-            <select>
-                <option>Service Type</option>
+            <input type="text" placeholder="First name" v-model="registrationData.firstName">
+            <p v-if="errors.firstName" class="error">{{ errors.firstName }}</p>
+
+            <input type="text" placeholder="Last Name" v-model="registrationData.lastName">
+            <p v-if="errors.lastName" class="error">{{ errors.lastName }}</p>
+
+            <input type="number" placeholder="Phone number" v-model="registrationData.phoneNumber">
+            <p v-if="errors.phoneNumber" class="error">{{ errors.phoneNumber }}</p>
+
+            <input type="email" placeholder="Email" v-model="registrationData.email">
+            <p v-if="errors.email" class="error">{{ errors.email }}</p>
+
+            <input type="number" placeholder="Years of Experience" v-model="registrationData.yearsOfExperience">
+            <p v-if="errors.yearsOfExperience" class="error">{{ errors.yearsOfExperience }}</p>
+
+            <input type="text" placeholder="Address" v-model="registrationData.address">
+            <p v-if="errors.address" class="error">{{ errors.address }}</p>
+
+            <textarea placeholder="Short Description" v-model="registrationData.description"></textarea>
+            <p v-if="errors.description" class="error">{{ errors.description }}</p>
+
+            <label for="servicing">Select Service Type</label>
+            <select id="servicing" v-model="registrationData.serviceType">
+                <option>Vulcanizer</option>
                 <option>Mechanic</option>
                 <option>Tailor</option>
                 <option>HairDresser</option>
                 <option>Plumber</option>
+                <option>Taxi</option>
             </select>
-            <input type="password" placeholder="Password">
-            <input type="password" placeholder="Confirm Password">
-            <button>Register</button>
+            <p v-if="errors.serviceType" class="error">{{ errors.serviceType }}</p>
+
+            <input type="password" placeholder="Password" v-model="registrationData.password">
+            <p v-if="errors.password" class="error">{{ errors.password }}</p>
+            <button @click="validateData">Register</button>
 
             <div class="already">
                 <h3>Already have an account? <span @click="showSignInButton">Sign-in</span> or sign Up with</h3>
@@ -44,7 +64,7 @@
 
         <div class="formDetails" v-show="passwordForgot">
             <input type="email" placeholder="Email">
-            <button>Reset Link</button>
+            <button>Reset Link.</button>
 
             <div class="already">
                 <h3>Don't have an account? <span @click="showRegister">Register</span></h3>
@@ -56,6 +76,9 @@
 
 <script setup>
     import {ref} from 'vue'
+    import validateRegistration from '@/middleware/providerValidation';
+
+
     const showRegistration = ref(true)
     const showSignIn = ref(false)
     const passwordForgot = ref(false)
@@ -81,6 +104,64 @@
         showRegistration.value = false
         passwordForgot.value = true
     }
+
+    // GRAB THE FORM DETAILS
+    const registrationData = ref({
+        firstName: '',
+        lastName: '',
+        phoneNumber: '',
+        email: '',
+        yearsOfExperience: '',
+        address: '',
+        description: '',
+        serviceType: '',
+        password: '',
+    })
+
+    const errors = ref({})
+    // FUNTION TO VALIDATE THE DATA
+    const validateData = async () => {
+        errors.value = validateRegistration(registrationData.value)
+        if(Object.keys(errors.value).length === 0){
+            console.log('Data is valid')
+            alert('Data is valid')
+            // CODE TO PROCEED WITH REGISTRATION
+        }else{
+            console.log('Data is invalid')
+
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 </script>
 
 <style scoped>
@@ -155,5 +236,8 @@
         color: #666;
         text-align: center;
     }
-
+    .error {
+        color: red;
+        font-size: 14px;
+    }
 </style>
