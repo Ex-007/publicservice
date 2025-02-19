@@ -39,20 +39,21 @@
 
             <input type="password" placeholder="Password" v-model="registrationData.password">
             <p v-if="errors.password" class="error">{{ errors.password }}</p>
+            <p @click="showHidePassword" class="showHide">{{ show }}</p>
             <button @click="validateData">Register</button>
 
             <div class="already">
                 <h3>Already have an account? <span @click="showSignInButton">Sign-in</span> or sign Up with</h3>
-                <button>Google</button>
+                <button @click="googleRegistration">Google</button>
             </div>
         </div>
 
         <!-- SIGN IN -->
 
         <div class="formDetails" v-show="showSignIn">
-            <input type="email" placeholder="Email">
-            <input type="password" placeholder="Password">
-            <button>Sign in</button>
+            <input type="email" placeholder="Email" v-model="loginDetails.email">
+            <input type="password" placeholder="Password" v-model="loginDetails.password">
+            <button @click="loginProvider">Sign in</button>
 
             <div class="already">
                 <h3 @click="showPasswordForgot">Forgot password?</h3>
@@ -75,8 +76,15 @@
 </template>
 
 <script setup>
-    import {ref} from 'vue'
+    import { ref, watch } from 'vue'
+    // The middleware for validating input fields
     import validateRegistration from '@/middleware/providerValidation';
+    // The store for the provider
+    import { useProviderStore } from '@/stores/providerRegister'
+    const providerStore = useProviderStore();   
+    // The routing
+    import { useRouter } from 'vue-router'
+    const router = useRouter()
 
 
     const showRegistration = ref(true)
@@ -105,7 +113,21 @@
         passwordForgot.value = true
     }
 
-    // GRAB THE FORM DETAILS
+    // WATCH THE CANPROCEED TO TURN TRUE OR FALSE
+    watch(() => providerStore.canProceed, (newVal) => {
+        if (newVal) {
+            router.push(`/dashboard/${providerStore.userIdentification}`)
+        }
+    })
+
+    // WATCH THE CANlOGIN TO TURN TRUE OR FALSE
+    watch(() => providerStore.canLogin, (newVal) => {
+        if (newVal) {
+            router.push(`/dashboard/${providerStore.userIdentification}`)
+        }
+    })
+
+    // GRAB THE REGISTRATION FORM DETAILS
     const registrationData = ref({
         firstName: '',
         lastName: '',
@@ -117,24 +139,54 @@
         serviceType: '',
         password: '',
     })
-
+    
+    // THE REGISTRATION ERROR
     const errors = ref({})
-    // FUNTION TO VALIDATE THE DATA
+
+    // FUNCTION TO VALIDATE THE REGISTRATION DATA
     const validateData = async () => {
         errors.value = validateRegistration(registrationData.value)
         if(Object.keys(errors.value).length === 0){
-            console.log('Data is valid')
-            alert('Data is valid')
-            // CODE TO PROCEED WITH REGISTRATION
+            await providerStore.registerProvider(registrationData);
+
         }else{
             console.log('Data is invalid')
 
         }
     }
 
+    // GRAB THE REGISTRATION FORM DETAILS
+    const loginDetails = ref({
+        email: '',
+        password: ''
+    })
 
+    // FUNCTION TO LOGIN PROVIDER
+    const loginProvider = async () => {
+        if(loginDetails.value.email === '' || loginDetails.value.password === ''){
+            alert('Please fill in all fields')
+            return
+        }
+        await providerStore.providerLogin(loginDetails)
+    }
 
+    const show = ref('show password')
 
+    const showHidePassword = () => {
+        const password = document.querySelector('input[type="password"]')
+        if(password.type === 'password'){
+            password.type = 'text'
+            show.value = 'hide password'
+        }else if(password.type === 'text'){
+            password.type = 'password'
+            show.value = 'show password'
+        }
+    }
+
+    // REGISTERWITHGOOGLE
+    const googleRegistration = () => {
+        providerStore.registerWithGoogle()
+    }
 
 
 
@@ -239,5 +291,10 @@
     .error {
         color: red;
         font-size: 14px;
+    }
+    .showHide{
+        cursor: pointer;
+        color: blue;
+        
     }
 </style>
