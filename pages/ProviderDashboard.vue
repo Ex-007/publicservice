@@ -23,7 +23,12 @@
             <li>⏳ Pending Requests: 4</li>
             <li>⭐ Average Rating: 4.8/5</li>
           </ul>
-          <button @click="navigateToRequests">View Service Requests</button>
+          <div class="buttonsB">
+            <button @click="navigateToRequests">View Service Requests</button>
+            <button @click="getVerified">Get Verified ✅</button>
+          </div>
+          <!-- <button @click="navigateToRequests">View Service Requests</button>
+          <button @click="getVerified">Get Verified ✅</button> -->
         </section>
   
         <!-- Requests Section -->
@@ -70,6 +75,12 @@
   
   <script setup>
   import { ref } from 'vue';
+  import { useRouter } from 'vue-router';
+  const router = useRouter();
+
+  const getVerified = () => {
+    router.push('/Verification')
+  }
   
   const activeTab = ref('home');
   
@@ -92,7 +103,7 @@
   };
   
   const upgradeToPremium = () => {
-    alert("Redirecting to premium upgrade page...");
+    router.push('/Premium');
   };
   </script>
   
@@ -138,6 +149,11 @@
     color: white;
     cursor: pointer;
     margin-top: 10px;
+  }
+  .buttonsB {
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
   }
   </style>
   
