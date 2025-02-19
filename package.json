@@ -13,8 +13,11 @@
     "@pinia/nuxt": "^0.9.0",
     "firebase": "^11.2.0",
     "font-awesome": "^4.7.0",
+    "leaflet": "^1.9.4",
     "nuxt": "^3.15.4",
+    "swiper": "^11.2.4",
     "vue": "latest",
+    "vue-leaflet": "^0.1.0",
     "vue-router": "latest",
     "vue3-carousel": "^0.14.0"
   },

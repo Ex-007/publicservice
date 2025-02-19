@@ -3,5 +3,12 @@ export default defineNuxtConfig({
   compatibilityDate: '2024-11-01',
   devtools: { enabled: true },
   modules: ['@pinia/nuxt'],
-  css: ["~/assets/css/global.css", 'font-awesome/css/font-awesome.min.css']
+  css: [
+          "~/assets/css/global.css", 
+          'font-awesome/css/font-awesome.min.css',
+          "leaflet/dist/leaflet.css",
+          "swiper/css", 
+          "swiper/css/navigation", 
+          "swiper/css/pagination"
+        ]
 })
