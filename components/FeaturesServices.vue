@@ -7,51 +7,55 @@
             <p class="description">Swipe through the series of available providers.</p>
   
             <div class="testimonialD">
-                <Carousel :perPage="1" :navigation-enabled="true" :loop="true">
-                
-                        <Slide class="testi">
-                            <img src="/public/img/mechanic.jpeg" alt="the head image">
+                <Swiper
+                    :modules="[Navigation, Pagination, Autoplay]"
+                    :slides-per-view="1"
+                    :space-between="10"
+                    :loop="true"
+                    :autoplay="{ delay: 3000, disableOnInteraction: false }"
+                    :pagination="{ clickable: false }"
+                    :navigation="false"
+                    class="my-swiper"
+                    >
+                        <SwiperSlide>
+                            <img src="/public/img/mechanic.jpeg" alt="Slide Image" class="swiper-image" />
                             <div class="details">
                                 <h3>Mechanic</h3>
                             </div>
-                        </Slide>
-                        <Slide class="testi">
-                            <img src="/public/img/plumber.jpeg" alt="the head image">
-                            <div class="details">
-                                <h3>Plumber</h3>
-                            </div>
-                        </Slide>
-                        <Slide class="testi">
-                            <img src="/public/img/hairdresser.jpeg" alt="the head image">
-                            <div class="details">
+                        </SwiperSlide>
+                        <SwiperSlide>
+                            <img src="/public/img/plumber.jpeg" alt="Slide Image" class="swiper-image" />
+                        </SwiperSlide>
+                        <SwiperSlide>
+                            <img src="/public/img/hairdresser.jpeg" alt="Slide Image" class="swiper-image" /><div class="details">
                                 <h3>Hairdresser</h3>
                             </div>
-                        </Slide>
-                        <Slide class="testi">
-                            <img src="/public/img/tailor.jpeg" alt="the head image">
+                        </SwiperSlide>
+                        <SwiperSlide>
+                            <img src="/public/img/tailor.jpeg" alt="Slide Image" class="swiper-image" />
                             <div class="details">
                                 <h3>Tailor</h3>
                             </div>
-                        </Slide>
-                        <Slide class="testi">
-                            <img src="/public/img/taxi.jpeg" alt="the head image">
+                        </SwiperSlide>
+                        <SwiperSlide>
+                            <img src="/public/img/taxi.jpeg" alt="Slide Image" class="swiper-image" />
                             <div class="details">
                                 <h3>Taxi</h3>
                             </div>
-                        </Slide>
-                        <Slide class="testi">
-                            <img src="/public/img/welder.jpeg" alt="the head image">
+                        </SwiperSlide>
+                        <SwiperSlide>
+                            <img src="/public/img/welder.jpeg" alt="Slide Image" class="swiper-image" />
                             <div class="details">
                                 <h3>Welder</h3>
                             </div>
-                        </Slide>
-                        <Slide class="testi">
-                            <img src="/public/img/vulcanizer.jpeg" alt="the head image">
+                        </SwiperSlide>
+                        <SwiperSlide>
+                            <img src="/public/img/vulcanizer.jpeg" alt="Slide Image" class="swiper-image" />
                             <div class="details">
                                 <h3>Vulcanizer</h3>
                             </div>
-                        </Slide>
-                </Carousel>
+                        </SwiperSlide>
+                    </Swiper>
             </div>
         </div>
     </section>
@@ -59,6 +63,9 @@
 <script setup>
     import { Carousel, Slide } from 'vue3-carousel';
     import 'vue3-carousel/dist/carousel.css';
+
+    import { Swiper, SwiperSlide } from "swiper/vue";
+    import { Navigation, Pagination, Autoplay } from "swiper/modules";
 
 </script>
 <style scoped>
@@ -94,6 +101,9 @@
         background: #f8f9fa;
         text-align: center;
     }
+    :deep(.swiper-pagination) {
+  display: none !important;
+}
 
 </style>
 
