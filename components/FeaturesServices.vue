@@ -25,9 +25,13 @@
                         </SwiperSlide>
                         <SwiperSlide>
                             <img src="/public/img/plumber.jpeg" alt="Slide Image" class="swiper-image" />
+                            <div class="details">
+                                <h3>Plumber</h3>
+                            </div>
                         </SwiperSlide>
                         <SwiperSlide>
-                            <img src="/public/img/hairdresser.jpeg" alt="Slide Image" class="swiper-image" /><div class="details">
+                            <img src="/public/img/hairdresser.jpeg" alt="Slide Image" class="swiper-image" />
+                            <div class="details">
                                 <h3>Hairdresser</h3>
                             </div>
                         </SwiperSlide>
@@ -61,8 +65,6 @@
     </section>
 </template>
 <script setup>
-    import { Carousel, Slide } from 'vue3-carousel';
-    import 'vue3-carousel/dist/carousel.css';
 
     import { Swiper, SwiperSlide } from "swiper/vue";
     import { Navigation, Pagination, Autoplay } from "swiper/modules";
