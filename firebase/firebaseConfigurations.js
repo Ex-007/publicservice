@@ -4,12 +4,14 @@ import { getStorage } from 'firebase/storage'
 import { getAuth } from 'firebase/auth'
 
 const firebaseConfig = {
-    apiKey: "AIzaSyBmY2XtNwXZrHeE5za2cp7sOFYOKjSvdCQ",
-    authDomain: "school-newusersign.firebaseapp.com",
-    projectId: "school-newusersign",
-    storageBucket: "school-newusersign.appspot.com",
-    messagingSenderId: "382800829354",
-    appId: "1:382800829354:web:145aeb3f8e346c016129d3"
+  apiKey: "AIzaSyDGMDGWLCwQUYhDDAc0MWhrTBf4MRh_ttg",
+  authDomain: "kampuskonnect-3d1d5.firebaseapp.com",
+  databaseURL: "https://kampuskonnect-3d1d5-default-rtdb.firebaseio.com",
+  projectId: "kampuskonnect-3d1d5",
+  storageBucket: "kampuskonnect-3d1d5.appspot.com",
+  messagingSenderId: "451610627457",
+  appId: "1:451610627457:web:61b4c70d520410b603ac80"
+
   };
 
   const app = initializeApp(firebaseConfig)

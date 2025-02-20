@@ -40,11 +40,11 @@
             <input type="password" placeholder="Password" v-model="registrationData.password">
             <p v-if="errors.password" class="error">{{ errors.password }}</p>
             <p @click="showHidePassword" class="showHide">{{ show }}</p>
-            <button @click="validateData">Register</button>
+            <button @click="validateData">{{isLoading ? 'Registering' : "Register"}}</button>
 
             <div class="already">
                 <h3>Already have an account? <span @click="showSignInButton">Sign-in</span> or sign Up with</h3>
-                <button @click="googleRegistration">Google</button>
+                <button @click="googleRegistration">Googe</button>
             </div>
         </div>
 

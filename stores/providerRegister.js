@@ -1,158 +1,127 @@
 import { defineStore } from 'pinia'
+import { useRouter } from 'vue-router'
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from 'firebase/auth'
-import {addDoc, collection, getDocs, doc, getDoc, setDoc, updateDoc, deleteDoc, deleteField, query, where, orderBy} from 'firebase/firestore'
+import {collection, getDocs, doc, getDoc, setDoc, updateDoc, deleteDoc, deleteField, query, where, orderBy} from 'firebase/firestore'
 
-export const useProviderStore = defineStore('auth', () => {
+export const useAuthStore = defineStore('auth', () => {
     const userValue = ref(null)
+    const userId = ref(localStorage.getItem('userId') || null) 
     const isLoading = ref(false)
     const error = ref(null)
     const canProceed = ref(false)
-    const canLogin = ref(false)
-    const userIdentification = ref(null)
 
-        // WATCHING FOR AUTH CHANGES
-        const checkAuth = async () => {
-            const { $auth } = useNuxtApp()
-            onAuthStateChanged($auth, (currentUser) => {
+    // WATCHING FOR AUTH CHANGES
+    const checkAuth = async () => {
+        const { $auth } = useNuxtApp()
+        onAuthStateChanged($auth, (currentUser) => {
+            if (currentUser) {
                 userValue.value = currentUser
-            })
-        }
-
-            // REGISTER USER
-        const registerProvider = async (registrationData) => {
-            isLoading.value = true
-            error.value = null
-            try {
-                const { $auth } = useNuxtApp()
-                let email = registrationData.email
-                let password = registrationData.password
-                const response = await createUserWithEmailAndPassword($auth, email, password)
-                if(response){
-                    const user = response.user
-                    const userId = user.uid
-                    userIdentification.value = userId
-                    // console.log('User ID: ', userId, email, username)
-                    await providerRegister(userId, registrationData)
-                }
-            } catch (error) {
-                error.value = error.message || 'An error occurred while registering user'
-                console.error('Error registering user: ', error)
-            }finally {
-                isLoading.value = false;
+                userId.value = currentUser.uid 
+                localStorage.setItem('userId', currentUser.uid);
+            } else {
+                userValue.value = null
+                userId.value = null
+                localStorage.removeItem('userId'); 
             }
-        }
+        })
+    }
 
-        // ADD USER TO DATABASE
-        const providerRegister = async (userId, registrationData) => {
-            isLoading.value = true
-            error.value = null
-            try {
-                const { $db } = useNuxtApp()
-                const docRef = doc($db, 'REGISTERED_PROVIDERS', userId)
-                await setDoc(docRef, {
-                    Firstname: registrationData.firstName,  
-                    Lastname: registrationData.lastName,    
-                    PhoneNumber: registrationData.phoneNumber,
-                    Email: registrationData.email,
-                    YearsOfExperience: registrationData.yearsOfExperience,
-                    Address: registrationData.address,
-                    ServiceType: registrationData.serviceType,
-                    ProfilePicture: null,
-                    lat: null,
-                    lng: null,
-                    Availability: true,
-                    Description: registrationData.description,
-                    isPremium: false,
-                    isVerified: false,
-                })
+    
+    // REGISTER USER
+    
+    // const registerUser = async (email, password, username) => {
+    //     isLoading.value = true
+    //     error.value = null
+    //     canProceed.value = false
+    //     try {
+    //         const { $auth } = useNuxtApp()
+    //         const response = await createUserWithEmailAndPassword($auth, email, password)
+    //         if(response){
+    //             const user = response.user
+    //             const userId = user.uid
+    //             registrationId.value = userId
+                
+    //             await addUSerToDatabase(userId, email, username)
+    //             canProceed.value = true
+    //             console.log('User ID : ', userId, email, username)
+    //         }
+    //     } catch (error) {
+    //         error.value = error.message || 'An error occurred while registering user'
+    //         console.log(error.value)
+    //     } finally {
+    //         isLoading.value = false
+    //     }
+    // }
+
+    const registerUser = async (email, password, username) => {
+        isLoading.value = true
+        error.value = null
+        try {
+            const { $auth } = useNuxtApp()
+            const response = await createUserWithEmailAndPassword($auth, email, password)
+            if (response) {
+                const user = response.user
+                userId.value = user.uid  // <-- Store userId after creation
+                localStorage.setItem('userId', user.uid); // ✅ Save userId
+                console.log('User ID:', userId.value, email, username)
+
+                await addUSerToDatabase(user.uid, email, username)
                 canProceed.value = true
-                console.log('User added to database')
-                console.log(canProceed.value)
-            } catch (error) {
-                console.error('Error adding user to database: ', error)
-            }finally{
-                isLoading.value = false
             }
-        }
-
-
-
-    // SIGN IN WITH EMAIL AND PASSWORD
-    const providerLogin = async (loginDetails) => {
-        isLoading.value = true
-        error.value = null
-        try {
-            const { $auth } = useNuxtApp()
-            const email = loginDetails.email
-            const password = loginDetails.password
-            const response = await signInWithEmailAndPassword($auth, email, password)
-            if(response){
-                console.log('User created:', response.user);
-                const user = response.user
-                userValue.value = user
-            }
-        } catch (error) {
-            error.value = error.message || 'An error occurred while signing in'
-            onsole.error('Firebase registration error:', error);
-        }finally{
-            isLoading.value = false
-            canLogin.value = true
-        }
-    }
-
-    // REGISTER WITH GOOGLE
-    const registerWithGoogle = async () => {
-        isLoading.value = true
-        error.value = null
-        try {
-            const { $auth } = useNuxtApp()
-            const provider = new GoogleAuthProvider()
-            const response = await signInWithPopup($auth, provider)
-            if(response){
-                const user = response.user
-                userValue.value = user
-
-                const userId = user.uid
-                userIdentification.value = userId
-                await providerRegister(userId, {
-                    FirstName: response.user.displayName.split(' ')[0] || '',
-                    LastName: response.user.displayName.split(' ')[1] || '',
-                    PhoneNumber : null,
-                    Email : user.email,
-                    ProfilePicture: user.photoURL,
-                    lat: null,
-                    lng: null,
-                    Availability: true,
-                    Description: null,
-                    isPremium: false,
-                    isVerified: false,
-                    YearsOfExperience: null,
-                    Address: null,
-                    ServiceType: null,
-                    PhoneNumber: null,
-                })
-
-            }
-            canProceed.value = true
-        } catch (error) {
-            error.value = error.message || 'An error occurred while signing in with Google'
-        }finally{
+        } catch (err) {
+            error.value = err.message || 'An error occurred while registering user'
+        } finally {
             isLoading.value = false
         }
     }
+    
+    // ADD USER TO DATABASE
+    // const addUSerToDatabase = async (userId, email, username) => {
+    //     isLoading.value = true
+    //     error.value = null
+    //     try {
+    //         const { $db } = useNuxtApp()
+    //         const docRef = doc($db, 'REGISTERED_USERS', userId)
+    //         await setDoc(docRef, {
+    //             email : email,
+    //             username : username,
+    //             isPremium : false,
+    //             isVerified : false
+    //         })
+    //         console.log('User added to database')
+    //     } catch (error) {
+    //         console.error('Error adding user to database: ', error)
+    //         error.value = error.message || 'An error occurred while adding user to database'
+    //     }
+    // }
 
-    // SIGN OUT            
+    const addUSerToDatabase = async (userId, email, username) => {
+        isLoading.value = true
+        error.value = null
+        try {
+            const { $db } = useNuxtApp()
+            const docRef = doc($db, 'REGISTERED_USERS', userId)
+            await setDoc(docRef, {
+                email: email,
+                username: username,
+                isPremium: false,
+                isVerified: false
+            })
+            console.log('User added to database')
+        } catch (err) {
+            console.error('Error adding user to database:', err)
+        } finally {
+            isLoading.value = false
+        }
+    }
+    
     return {
-        userIdentification,
         checkAuth,
         userValue,
+        userId, 
         isLoading,
         error,
         canProceed,
-        providerRegister,
-        registerProvider,
-        providerLogin,
-        registerWithGoogle,
-        canLogin
+        registerUser
     }
 })
