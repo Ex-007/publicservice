@@ -34,12 +34,12 @@ export const useProviderStore = defineStore('auth', () => {
         canProceed.value = false
         try {
             const { $auth } = useNuxtApp()
-            let email = registrationData.email
-            let password = registrationData.password
+            var email = registrationData.email
+            var password = registrationData.password
             const response = await createUserWithEmailAndPassword($auth, email, password)
             if(response){
                 const user = response.user
-                const userId = user.uid
+                let userId = user.uid
                 localStorage.setItem('userId', userId);
                 
                 await addUSerToDatabase(userId, registrationData)
@@ -86,52 +86,38 @@ export const useProviderStore = defineStore('auth', () => {
         }
     }
 
-    // REGISTERING PROVIDERS WITH GOOGLE AUTH PROVIDER
-    const registerProviderWithGoogleAuth = async () => {
+    // SIGNING IN PROVIDERS
+    const signinProviders = async (loginDetails) => {
         isLoading.value = true
         error.value = null
         canProceed.value = false
-
         try {
             const { $auth } = useNuxtApp()
-            const provider = new GoogleAuthProvider()
-            const gResponse = await signInWithPopup($auth, provider)
-            if(gResponse){
-                const gUser = gResponse.user
-                const userId = gUser.uid
+            var email = loginDetails.email
+            var password = loginDetails.password
 
-                // SAVING THE USERID TO LOCAL STORAGE
+            const userCredential = await signInWithEmailAndPassword($auth, email, password)
+            if(userCredential){
+                let userId = userCredential.user.uid
                 localStorage.setItem('userId', userId);
-                // SAVING THE DETAILS TO FIRESTORE
-                await addUSerToDatabase(userId, {
-                    FirstName: gResponse.user.displayName.split(' ')[0] || '',
-                    LastName: gResponse.user.displayName.split(' ')[1] || '',
-                    PhoneNumber : null,
-                    Email : user.email,
-                    ProfilePicture: gResponse.user.photoURL || null,
-                    lat: null,
-                    lng: null,
-                    Availability: true,
-                    Description: null,
-                    isPremium: false,
-                    isVerified: false,
-                    YearsOfExperience: null,
-                    Address: null,
-                    ServiceType: null,
-                    PhoneNumber: null,
-                })
-                canProceed.value = true
 
-                console.log('user successfully created', userId)
+                setTimeout(() => {
+                    canProceed.value = true
+                }, 1000);
             }
-        } catch (err) {
-            // error.value = err
-            console.log(err)
-        } finally {
+        } catch (error) {
+            error.value = error.message || 'An error occurred while signing in'
+            console.log(error.message)
+        } finally{
             isLoading.value = false
         }
     }
 
+    // THE logout btn
+    const logOutProvider = async () => {
+        isLoading.value = true
+        error.value = null
+    }
 
 
 
@@ -154,6 +140,6 @@ export const useProviderStore = defineStore('auth', () => {
         error,
         canProceed,
         registerProvider,
-        registerProviderWithGoogleAuth
+        signinProviders
     }
 })

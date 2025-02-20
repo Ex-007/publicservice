@@ -43,8 +43,8 @@
             <button @click="registerProviderBtn" :disabled="providerStore.isLoading">{{providerStore.isLoading ? 'Registering...' : "Register"}}</button>
 
             <div class="already">
-                <h3>Already have an account? <span @click="showSignInButton">Sign-in</span> or sign Up with</h3>
-                <button @click="googleRegistration" :disabled="providerStore.isLoading">{{providerStore.isLoading ? 'Please Wait...' : "Google"}}</button>
+                <h3>Already have an account? <span @click="showSignInButton">Sign-in</span></h3>
+                <!-- <button @click="googleRegistration" :disabled="providerStore.isLoading">{{providerStore.isLoading ? 'Please Wait...' : "Google"}}</button> -->
             </div>
         </div>
 
@@ -57,7 +57,7 @@
 
             <div class="already">
                 <h3 @click="showPasswordForgot">Forgot password?</h3>
-                <h3>Don't have an account? <span @click="showRegister">Register</span></h3>
+                <h3>Don't have an account? <span @click="showRegister">{{ providerStore.isLoading ? 'Login in...' : 'Sign in' }}</span></h3>
             </div>
         </div>
 
@@ -144,32 +144,19 @@
     // ✅ Watch canProceed and navigate when it turns true and Fetch the userId from the localstorage
     watch(() => providerStore.canProceed, (newVal) => {
         if (newVal) {
-            console.log('Navigating to Home Page');
             const userId = ref(localStorage.getItem('userId') || null);
             let userRegId = userId.value
-            router.push(`/providers/${userRegId}`)
+            router.push(`/dashboard/${userRegId}`)
         }
     });
 
 
     // REGISTER PROVIDERS WITH GOOGLE AUTH PROVIDER
-    const googleRegistration = () => {
-        providerStore.registerProviderWithGoogleAuth()
-    }
+    // const googleRegistration = () => {
+    //     providerStore.registerProviderWithGoogleAuth()
+    // }
 
-
-
-
-
-
-
-
-
-
-
-
-
-    // GRAB THE REGISTRATION FORM DETAILS
+    // GRAB THE LOGIN FORM DETAILS
     const loginDetails = ref({
         email: '',
         password: ''
@@ -181,8 +168,20 @@
             alert('Please fill in all fields')
             return
         }
-        await providerStore.providerLogin(loginDetails)
+        await providerStore.signinProviders(loginDetails.value)
     }
+
+
+
+
+
+
+
+
+
+
+
+
 
     const show = ref('show password')
 
