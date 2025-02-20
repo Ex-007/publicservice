@@ -2,7 +2,10 @@
     <div class="dashboard">
       <!-- Sidebar Navigation -->
       <aside class="sidebar">
-        <h2>Dashboard</h2>
+          <h2 class='dashsay'>Dashboard</h2>
+        <div class='profileP'>
+            <img src="/public/img/profilepicture.jpeg" alt="Profile Picture" class="profilePicture" />
+        </div>
         <ul>
           <li @click="activeTab = 'home'" :class="{ active: activeTab === 'home' }">🏠 Home</li>
           <li @click="activeTab = 'requests'" :class="{ active: activeTab === 'requests' }">📩 Service Requests</li>
@@ -16,7 +19,7 @@
       <main class="content">
         <!-- Home Section -->
         <section v-if="activeTab === 'home'">
-          <h2>Welcome, {{ id }}!</h2>
+          <h2>Welcome, {{ providerInfo.Firstname }}!</h2>
           <p>Here's an overview of your recent activity.</p>
           <ul>
             <li>✅ Completed Requests: 12</li>
@@ -46,16 +49,35 @@
         <!-- Profile Section -->
         <section v-if="activeTab === 'profile'">
           <h2>Profile Settings</h2>
+          <h3> {{ providerInfo.Email }} </h3>
           <p>Update your personal and service details.</p>
-          <form>
-            <label>Name:</label>
-            <input type="text" v-model="profile.name" />
+          <div class='profileDetails'>
+            <label>Firstname:</label>
+            <input type="text" v-model="providerInfo.Firstname " />
+            <label>Lastname:</label>
+            <input type="text" v-model="providerInfo.Lastname " />
+            <label>Address:</label>
+            <input type="text" v-model="providerInfo.Address " />
+            <label>PhoneNumber :</label>
+            <input type="number" v-model="providerInfo.PhoneNumber  " />
+            <label>Experience:</label>
+            <input type="number" v-model="providerInfo.yearsOfExperience" />
             <label>Service Type:</label>
-            <input type="text" v-model="profile.serviceType" />
-            <label>Phone:</label>
-            <input type="text" v-model="profile.phone" />
+            <select v-model="providerInfo.ServiceType">
+                <option>{{providerInfo.ServiceType}}</option>
+                <option>HairDresser</option>
+                <option>Plumber</option>
+            </select>
+            <label>Availability:</label>
+            <select v-model="providerInfo.Availability">
+                <option>{{providerInfo.Availability}}</option>
+                <option>Busy</option>
+            </select>
+            <label>Description:</label>
+            <textarea v-model="providerInfo.Description"></textarea>
+
             <button type="submit">Save Changes</button>
-          </form>
+        </div>
         </section>
   
         <!-- Premium Section -->
@@ -74,10 +96,14 @@
   </template>
   
   <script setup>
-  import { ref } from 'vue';
+  import { ref, watch, onMounted  } from 'vue';
   import { useRouter, useRoute } from 'vue-router';
   const router = useRouter();
   const route = useRoute()
+  import { useProviderStore } from '@/stores/providerRegister'
+  import { useProdetailsStore } from '@/stores/fetchProviderDet'
+  const proDetails = useProdetailsStore()
+  const providerStore = useProviderStore(); 
 
   const getVerified = () => {
     router.push('/Verification')
@@ -107,18 +133,58 @@
     router.push('/Premium');
   };
 
+//   WATCHER FOR THE LOGOUT ACTION
+    watch(() => providerStore.canProceed, (newVal) => {
+        if (newVal) {
+            localStorage.removeItem('userId');
+            router.push('/')
+        }
+    });
+
   const {id} = route.params;
 
+//   GRAB THE PROVIDER DETAILS FROM THE FIRESTORE STORAGE
+    const providerInfo = ref({
+        Address : '',
+        Availability : '',
+        Description : '',
+        Email : '',
+        Firstname : '',
+        Lastname : '',
+        PhoneNumber : '',
+        ProfilePicture : '',
+        ServiceType : '',
+        yearsOfExperience : '',
+        isPremium : false,
+        isVerified : false,
+        lat : '',
+        lng : ''
+    })
+
+  const runFetchDetails = async () => {
+        providerInfo.value.Address = proDetails.providerDetails.Address
+        providerInfo.value.Firstname = proDetails.providerDetails.Firstname
+        providerInfo.value.Availability = proDetails.providerDetails.Availability
+        providerInfo.value.Description = proDetails.providerDetails.Description
+        providerInfo.value.Email = proDetails.providerDetails.Email
+        providerInfo.value.Lastname = proDetails.providerDetails.Lastname
+        providerInfo.value.PhoneNumber = proDetails.providerDetails.PhoneNumber
+        providerInfo.value.ProfilePicture = proDetails.providerDetails.ProfilePicture
+        providerInfo.value.ServiceType = proDetails.providerDetails.ServiceType
+        providerInfo.value.yearsOfExperience = proDetails.providerDetails.YearsOfExperience
+        providerInfo.value.isPremium = proDetails.providerDetails.isPremium
+        providerInfo.value.isVerified = proDetails.providerDetails.isVerified
+        providerInfo.value.lat = proDetails.providerDetails.lat
+        providerInfo.value.lng = proDetails.providerDetails.lng
+    }
 
 
 
-
-
-
-
-
-
-
+// ONMOUNT TO FIRE THE DATABASE FETCH FOR THE PROVIDER
+  onMounted(async () => {
+    await proDetails.providerDetailsFetch(id)
+    await runFetchDetails()
+  })
 
   </script>
   
@@ -169,6 +235,37 @@
     display: flex;
     justify-content: space-between;
     flex-direction: column;
+  }
+  .profileDetails{
+    display: flex;
+    flex-direction : column;
+  }
+  input{
+    width : 150px;
+    height : 30px;
+    padding : 5px;
+    margin-bottom: 5px;
+  }
+  textarea{
+    resize : none;
+    height : 150px;
+    padding : 5px
+  }
+  .profilePicture{
+    width : 100px;
+    height : 100px;
+    border-radius: 50%;
+  }
+  .profileP{
+    display: flex;
+    justify-content: center;
+    align-item: center;
+    margin: 10px;
+  }
+  .dashsay{
+    display: flex;
+    justify-content: center;
+    align-item: center;
   }
   </style>
   

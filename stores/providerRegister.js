@@ -26,7 +26,6 @@ export const useProviderStore = defineStore('auth', () => {
         })
     }
 
-    
     // REGISTERING THE PROVIDER
     const registerProvider = async (registrationData) => {
         isLoading.value = true
@@ -54,7 +53,6 @@ export const useProviderStore = defineStore('auth', () => {
         }
     }
 
-
     // ADDING THE REGISTERED PROVIDERS DETAILS TO FIRESTORE.
     const addUSerToDatabase = async (userId, registrationData) => {
         isLoading.value = true
@@ -73,7 +71,7 @@ export const useProviderStore = defineStore('auth', () => {
                 ProfilePicture: null,
                 lat: null,
                 lng: null,
-                Availability: true,
+                Availability: 'active',
                 Description: registrationData.description,
                 isPremium: false,
                 isVerified: false,
@@ -117,6 +115,17 @@ export const useProviderStore = defineStore('auth', () => {
     const logOutProvider = async () => {
         isLoading.value = true
         error.value = null
+        canProceed.value = false
+        try {
+            const { $auth } = useNuxtApp()
+            await signOut($auth)
+            setTimeout(() => {
+                canProceed.value = true
+            }, 1000);
+
+        } catch (error) {
+            error.value = error.message
+        }
     }
 
 
