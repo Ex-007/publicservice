@@ -40,11 +40,11 @@
             <input type="password" placeholder="Password" v-model="registrationData.password">
             <p v-if="errors.password" class="error">{{ errors.password }}</p>
             <p @click="showHidePassword" class="showHide">{{ show }}</p>
-            <button @click="validateData">{{isLoading ? 'Registering' : "Register"}}</button>
+            <button @click="registerProviderBtn" :disabled="providerStore.isLoading">{{providerStore.isLoading ? 'Registering...' : "Register"}}</button>
 
             <div class="already">
                 <h3>Already have an account? <span @click="showSignInButton">Sign-in</span> or sign Up with</h3>
-                <button @click="googleRegistration">Googe</button>
+                <button @click="googleRegistration" :disabled="providerStore.isLoading">{{providerStore.isLoading ? 'Please Wait...' : "Google"}}</button>
             </div>
         </div>
 
@@ -113,20 +113,6 @@
         passwordForgot.value = true
     }
 
-    // WATCH THE CANPROCEED TO TURN TRUE OR FALSE
-    watch(() => providerStore.canProceed, (newVal) => {
-        if (newVal) {
-            router.push(`/dashboard/${providerStore.userIdentification}`)
-        }
-    })
-
-    // WATCH THE CANlOGIN TO TURN TRUE OR FALSE
-    watch(() => providerStore.canLogin, (newVal) => {
-        if (newVal) {
-            router.push(`/dashboard/${providerStore.userIdentification}`)
-        }
-    })
-
     // GRAB THE REGISTRATION FORM DETAILS
     const registrationData = ref({
         firstName: '',
@@ -143,17 +129,45 @@
     // THE REGISTRATION ERROR
     const errors = ref({})
 
-    // FUNCTION TO VALIDATE THE REGISTRATION DATA
-    const validateData = async () => {
+    // FUNCTION TO VALIDATE THE REGISTRATION DATA AND REGISTER PROVIDERS
+    const registerProviderBtn = async () => {
         errors.value = providerRegistration(registrationData.value)
         if(Object.keys(errors.value).length === 0){
-            await providerStore.registerProvider(registrationData);
-
+            await providerStore.registerProvider(registrationData.value);
         }else{
             console.log('Data is invalid')
 
         }
     }
+
+
+    // ✅ Watch canProceed and navigate when it turns true and Fetch the userId from the localstorage
+    watch(() => providerStore.canProceed, (newVal) => {
+        if (newVal) {
+            console.log('Navigating to Home Page');
+            const userId = ref(localStorage.getItem('userId') || null);
+            let userRegId = userId.value
+            router.push(`/providers/${userRegId}`)
+        }
+    });
+
+
+    // REGISTER PROVIDERS WITH GOOGLE AUTH PROVIDER
+    const googleRegistration = () => {
+        providerStore.registerProviderWithGoogleAuth()
+    }
+
+
+
+
+
+
+
+
+
+
+
+
 
     // GRAB THE REGISTRATION FORM DETAILS
     const loginDetails = ref({
@@ -183,10 +197,6 @@
         }
     }
 
-    // REGISTERWITHGOOGLE
-    const googleRegistration = () => {
-        providerStore.registerWithGoogle()
-    }
 
 
 
