@@ -115,20 +115,28 @@ export const useProviderStore = defineStore('auth', () => {
                 const userId = user.uid
                 userIdentification.value = userId
                 await providerRegister(userId, {
-                    firstname : user.displayName,
-                    lastname : null,
-                    phoneNumber : null,
-                    email : user.email,
-                    yearsOfExperience : null,
-                    address : null,
-                    serviceType : null,
-                    description : null
+                    FirstName: response.user.displayName.split(' ')[0] || '',
+                    LastName: response.user.displayName.split(' ')[1] || '',
+                    PhoneNumber : null,
+                    Email : user.email,
+                    ProfilePicture: user.photoURL,
+                    lat: null,
+                    lng: null,
+                    Availability: true,
+                    Description: null,
+                    isPremium: false,
+                    isVerified: false,
+                    YearsOfExperience: null,
+                    Address: null,
+                    ServiceType: null,
+                    PhoneNumber: null,
                 })
 
             }
         } catch (error) {
             error.value = error.message || 'An error occurred while signing in with Google'
         }finally{
+            canProceed.value = true
             isLoading.value = false
         }
     }
