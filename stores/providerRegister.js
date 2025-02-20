@@ -133,10 +133,10 @@ export const useProviderStore = defineStore('auth', () => {
                 })
 
             }
+            canProceed.value = true
         } catch (error) {
             error.value = error.message || 'An error occurred while signing in with Google'
         }finally{
-            canProceed.value = true
             isLoading.value = false
         }
     }
