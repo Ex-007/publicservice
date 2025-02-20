@@ -7,8 +7,8 @@
                 Instantly connect with mechanics, plumbers, tailors, architects, developers and more!
             </p>
             <div class="hero-buttons">
-                <button class="primary-btn" @click='accountPage'>Find a Provider</button>
-                <button class="secondary-btn" @click="userPage">Join as a Provider</button>
+                <button class="primary-btn" @click='userPage'>Find a Provider</button>
+                <button class="secondary-btn" @click="accountPage">Join as a Provider</button>
             </div>
         </div>
     </section>

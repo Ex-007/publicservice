@@ -78,7 +78,7 @@
 <script setup>
     import { ref, watch } from 'vue'
     // The middleware for validating input fields
-    import validateRegistration from '@/middleware/providerValidation';
+    import providerRegistration from '@/middleware/providerValidation';
     // The store for the provider
     import { useProviderStore } from '@/stores/providerRegister'
     const providerStore = useProviderStore();   
@@ -145,7 +145,7 @@
 
     // FUNCTION TO VALIDATE THE REGISTRATION DATA
     const validateData = async () => {
-        errors.value = validateRegistration(registrationData.value)
+        errors.value = providerRegistration(registrationData.value)
         if(Object.keys(errors.value).length === 0){
             await providerStore.registerProvider(registrationData);
 

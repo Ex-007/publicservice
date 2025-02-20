@@ -36,6 +36,7 @@ export const useProviderStore = defineStore('auth', () => {
                 }
             } catch (error) {
                 error.value = error.message || 'An error occurred while registering user'
+                console.error('Error registering user: ', error)
             }finally {
                 isLoading.value = false;
             }
@@ -49,20 +50,20 @@ export const useProviderStore = defineStore('auth', () => {
                 const { $db } = useNuxtApp()
                 const docRef = doc($db, 'REGISTERED_PROVIDERS', userId)
                 await setDoc(docRef, {
-                    Firstname : registrationData.firstname,
-                    Lastname : registrationData.lastname,
-                    PhoneNumber : registrationData.phoneNumber,
-                    Email : registrationData.email,
-                    YearsOfExperience : registrationData.yearsOfExperience,
-                    Address : registrationData.address,
-                    ServiceType : registrationData.serviceType,
-                    ProfilePicture : null,
-                    lat : null,
-                    lng : null,
-                    Availability : true,
-                    Description : registrationData.description,
-                    isPremium : false,
-                    isVerified : false,
+                    Firstname: registrationData.firstName,  
+                    Lastname: registrationData.lastName,    
+                    PhoneNumber: registrationData.phoneNumber,
+                    Email: registrationData.email,
+                    YearsOfExperience: registrationData.yearsOfExperience,
+                    Address: registrationData.address,
+                    ServiceType: registrationData.serviceType,
+                    ProfilePicture: null,
+                    lat: null,
+                    lng: null,
+                    Availability: true,
+                    Description: registrationData.description,
+                    isPremium: false,
+                    isVerified: false,
                 })
                 canProceed.value = true
                 console.log('User added to database')
@@ -74,6 +75,8 @@ export const useProviderStore = defineStore('auth', () => {
             }
         }
 
+
+
     // SIGN IN WITH EMAIL AND PASSWORD
     const providerLogin = async (loginDetails) => {
         isLoading.value = true
@@ -84,11 +87,13 @@ export const useProviderStore = defineStore('auth', () => {
             const password = loginDetails.password
             const response = await signInWithEmailAndPassword($auth, email, password)
             if(response){
+                console.log('User created:', response.user);
                 const user = response.user
                 userValue.value = user
             }
         } catch (error) {
             error.value = error.message || 'An error occurred while signing in'
+            onsole.error('Firebase registration error:', error);
         }finally{
             isLoading.value = false
             canLogin.value = true
@@ -119,7 +124,7 @@ export const useProviderStore = defineStore('auth', () => {
                     serviceType : null,
                     description : null
                 })
-                
+
             }
         } catch (error) {
             error.value = error.message || 'An error occurred while signing in with Google'
