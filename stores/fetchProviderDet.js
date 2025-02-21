@@ -5,6 +5,7 @@ export const useProdetailsStore = defineStore('details', () => {
     const providerDetails = ref(null)
     const isLoading = ref(false)
     const error = ref(null)
+    const updateInfo = ref(null)
 
 
     // FETCHING DETAILS FOR PROVIDER
@@ -27,7 +28,45 @@ export const useProdetailsStore = defineStore('details', () => {
             isLoading.value = false
         }
     }
-
+    
+    // UPDATING PROVIDER DETAILS
+    
+    const updateProvider = async (id, providerInfo) => {
+        isLoading.value = true;
+        error.value = null;
+ 
+        try {
+            const { $db } = useNuxtApp();
+            if (!$db) {
+                throw new Error("🔥 Firebase database is not initialized.");
+            }
+    
+            if (!id) {
+                throw new Error("⚠️ Invalid provider ID: " + id);
+            }
+    
+            const updateRef = doc($db, 'REGISTERED_PROVIDERS', id);
+    
+            // Remove undefined fields before updating
+            const filteredProviderInfo = Object.fromEntries(
+                Object.entries(providerInfo).filter(([_, v]) => v !== undefined)
+            );
+    
+            await updateDoc(updateRef, filteredProviderInfo);
+    
+            console.log("✅ Profile Updated Successfully");
+            return true;
+        } catch (err) {
+            console.error("❌ Error Updating Profile:", err); // Log full error
+            error.value = err?.message || JSON.stringify(err) || "Unknown error occurred";
+            return false;
+        } finally {
+            isLoading.value = false;
+        }
+    };
+    
+    
+    
 
 
 
@@ -51,6 +90,8 @@ export const useProdetailsStore = defineStore('details', () => {
         isLoading,
         error,
         providerDetails,
-        providerDetailsFetch
+        providerDetailsFetch,
+        updateProvider,
+        updateInfo
     }
 })

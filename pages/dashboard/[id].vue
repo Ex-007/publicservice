@@ -61,7 +61,7 @@
             <label>PhoneNumber :</label>
             <input type="number" v-model="providerInfo.PhoneNumber  " />
             <label>Experience:</label>
-            <input type="number" v-model="providerInfo.yearsOfExperience" />
+            <input type="number" v-model="providerInfo.YearsOfExperience" />
             <label>Service Type:</label>
             <select v-model="providerInfo.ServiceType">
                 <option>{{providerInfo.ServiceType}}</option>
@@ -76,7 +76,7 @@
             <label>Description:</label>
             <textarea v-model="providerInfo.Description"></textarea>
 
-            <button type="submit">Save Changes</button>
+            <button @click="updateInfo" :disabled="proDetails.isLoading">{{ proDetails.isLoading ? 'Updating...' : 'Update' }}</button>
         </div>
         </section>
   
@@ -110,12 +110,6 @@
   }
   
   const activeTab = ref('home');
-  
-  const profile = ref({
-    name: "John Doe",
-    serviceType: "Plumber",
-    phone: "123-456-7890",
-  });
   
   const logout = () => {
     alert("Logging out...");
@@ -154,7 +148,7 @@
         PhoneNumber : '',
         ProfilePicture : '',
         ServiceType : '',
-        yearsOfExperience : '',
+        YearsOfExperience : '',
         isPremium : false,
         isVerified : false,
         lat : '',
@@ -177,6 +171,64 @@
         providerInfo.value.lat = proDetails.providerDetails.lat
         providerInfo.value.lng = proDetails.providerDetails.lng
     }
+
+    // UPDATE THE PROVIDER'S INFORMATION
+    // const updateInfo = async () => {
+    //     await proDetails.updateProvider(id, providerInfo.value)
+    //     if (proDetails.updateInfo) {
+    //         alert('Profile Updated Successfully')
+    //     } else {
+    //         alert('Profile Update Failed')
+    //     }
+    // }
+    const updateInfo = async () => {
+    console.log("🚀 Updating Provider:", id, providerInfo.value);
+
+    const success = await proDetails.updateProvider(id, providerInfo.value);
+    
+    if (success) {
+        console.log("✅ Profile updated successfully.");
+        alert("Profile Updated Successfully");
+        await proDetails.providerDetailsFetch(id)
+        await runFetchDetails()
+    } else {
+        console.error("❌ Profile update failed. Error:", proDetails.error.value);
+        alert("Profile Update Failed: " + (proDetails.error.value || "Unknown error"));
+    }
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
