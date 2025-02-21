@@ -1,11 +1,14 @@
 import { defineStore } from 'pinia'
 import {collection, getDocs, doc, getDoc, setDoc, updateDoc, deleteDoc, deleteField, query, where, orderBy} from 'firebase/firestore'
+import { ref, uploadBytes, getDownloadURL  } from 'firebase/storage'
 
 export const useProdetailsStore = defineStore('details', () => {
     const providerDetails = ref(null)
     const isLoading = ref(false)
     const error = ref(null)
     const updateInfo = ref(null)
+    const uploading = ref(false)
+    const uploadError = ref(null)
 
 
     // FETCHING DETAILS FOR PROVIDER
@@ -64,7 +67,80 @@ export const useProdetailsStore = defineStore('details', () => {
             isLoading.value = false;
         }
     };
+
+    // UPDATE THE PROFILE PICTURE
+    // const changeProfilePicture = async (id, file) => {
+    //     uploading.value = true;
+    //     error.value = null;
+    //       if (!file) {
+    //         uploadError.value = 'No file selected.';
+    //         return;
+    //       }
+    //       if (!id) {
+    //         uploadError.value = 'No User Id Detected.';
+    //         throw new Error("⚠️ Invalid provider ID: " + id);
+    //         }
+    //       if (!file.type.startsWith('image/')) {
+    //         uploadError.value = 'Only image files are allowed.';
+    //         return;
+    //       }
+
+
+    //       try {
+              
+    //         const { $db, $storage } = useNuxtApp()
+    //         const storageRef = ref($storage, `profileImages/${id}/${file.name}`);
+    //         const snapshot = await uploadBytes(storageRef, file);
+    //         const downloadURL = await getDownloadURL(snapshot.ref);
+
+    //         const providerRef = doc($db, 'REGISTERED_PROVIDERS', id)
+    //         await updateDoc(providerRef, {
+    //             ProfilePicture : downloadURL
+    //         })
+    //         uploading.value = false
+            
+    //     } catch (error) {
+    //         uploadError.value = error.message
+    //         uploading.value = false
+    //     }
+    // }
     
+
+    const changeProfilePicture = async (id, file) => {
+        uploading.value = true;
+        uploadError.value = null;
+
+        if (!file) {
+            uploadError.value = 'No file selected.';
+            return false; // Return false on error
+        }
+        if (!id) {
+            uploadError.value = 'No User Id Detected.';
+            return false; // Return false on error
+        }
+        if (!file.type.startsWith('image/')) {
+            uploadError.value = 'Only image files are allowed.';
+            return false; // Return false on error
+        }
+
+        try {
+            const { $db, $storage } = useNuxtApp();
+            const storageRef = ref($storage, `profileImages/${id}/${file.name}`);
+            const snapshot = await uploadBytes(storageRef, file);
+            const downloadURL = await getDownloadURL(snapshot.ref);
+
+            const providerRef = doc($db, 'REGISTERED_PROVIDERS', id);
+            await updateDoc(providerRef, {
+                ProfilePicture: downloadURL,
+            });
+            uploading.value = false;
+            return true; // Return true on success
+        } catch (error) {
+            uploadError.value = error.message;
+            uploading.value = false;
+            return false; // Return false on error
+        }
+    };
     
     
 
@@ -92,6 +168,9 @@ export const useProdetailsStore = defineStore('details', () => {
         providerDetails,
         providerDetailsFetch,
         updateProvider,
-        updateInfo
+        updateInfo,
+        uploadError,
+        uploading,
+        changeProfilePicture
     }
 })

@@ -53,20 +53,23 @@
           <p>Update your personal and service details.</p>
           <div class='profileDetails'>
             <label>Firstname:</label>
-            <input type="text" v-model="providerInfo.Firstname " />
+            <input type="text" v-model="providerInfo.Firstname" />
             <label>Lastname:</label>
-            <input type="text" v-model="providerInfo.Lastname " />
+            <input type="text" v-model="providerInfo.Lastname" />
             <label>Address:</label>
-            <input type="text" v-model="providerInfo.Address " />
+            <input type="text" v-model="providerInfo.Address" />
             <label>PhoneNumber :</label>
-            <input type="number" v-model="providerInfo.PhoneNumber  " />
+            <input type="number" v-model="providerInfo.PhoneNumber" />
             <label>Experience:</label>
             <input type="number" v-model="providerInfo.YearsOfExperience" />
             <label>Service Type:</label>
             <select v-model="providerInfo.ServiceType">
-                <option>{{providerInfo.ServiceType}}</option>
+                <!-- <option>{{providerInfo.ServiceType}}</option> -->
                 <option>HairDresser</option>
                 <option>Plumber</option>
+                <option>Mechanic</option>
+                <option>Tailor</option>
+                <option>Vulcanizer</option>
             </select>
             <label>Availability:</label>
             <select v-model="providerInfo.Availability">
@@ -77,6 +80,10 @@
             <textarea v-model="providerInfo.Description"></textarea>
 
             <button @click="updateInfo" :disabled="proDetails.isLoading">{{ proDetails.isLoading ? 'Updating...' : 'Update' }}</button>
+            <label for="profilePictree" class="picDisplay">Profile Picture</label>
+            <input type="file" id="profilePictree" class="picInput" accept="image/*" @change="handleImageUpload"/>
+            <div class="uploaderror" v-if="proDetails.uploading">uploading...</div>
+            <div class="uploaderror" v-if="proDetails.uploadError">{{ proDetails.uploadError }}</div>
         </div>
         </section>
   
@@ -165,22 +172,13 @@
         providerInfo.value.PhoneNumber = proDetails.providerDetails.PhoneNumber
         providerInfo.value.ProfilePicture = proDetails.providerDetails.ProfilePicture
         providerInfo.value.ServiceType = proDetails.providerDetails.ServiceType
-        providerInfo.value.yearsOfExperience = proDetails.providerDetails.YearsOfExperience
+        providerInfo.value.YearsOfExperience = proDetails.providerDetails.YearsOfExperience
         providerInfo.value.isPremium = proDetails.providerDetails.isPremium
         providerInfo.value.isVerified = proDetails.providerDetails.isVerified
         providerInfo.value.lat = proDetails.providerDetails.lat
         providerInfo.value.lng = proDetails.providerDetails.lng
     }
 
-    // UPDATE THE PROVIDER'S INFORMATION
-    // const updateInfo = async () => {
-    //     await proDetails.updateProvider(id, providerInfo.value)
-    //     if (proDetails.updateInfo) {
-    //         alert('Profile Updated Successfully')
-    //     } else {
-    //         alert('Profile Update Failed')
-    //     }
-    // }
     const updateInfo = async () => {
     console.log("🚀 Updating Provider:", id, providerInfo.value);
 
@@ -196,6 +194,18 @@
         alert("Profile Update Failed: " + (proDetails.error.value || "Unknown error"));
     }
 };
+
+// CHANGE PROFILE PICTURE
+  const handleImageUpload = async (event) => {
+    const file = event.target.files[0]
+    const success = await proDetails.changeProfilePicture(id, file)
+    if(success){
+      alert('image uploaded')
+    }else{
+      console.log('upload error')
+    }
+
+  }
 
 
 
@@ -241,6 +251,9 @@
   </script>
   
   <style scoped>
+  .picInput{
+    display: none;
+  }
   .dashboard {
     display: flex;
     height: 100vh;
@@ -311,13 +324,24 @@
   .profileP{
     display: flex;
     justify-content: center;
-    align-item: center;
+    align-items: center;
     margin: 10px;
   }
   .dashsay{
     display: flex;
+    justify-content: cnter;
+    align-items: center;
+  }
+
+  .picDisplay{
+    display: flex;
     justify-content: center;
-    align-item: center;
+    align-items: center;
+    margin: 10px;
+    padding: 5px;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
   }
   </style>
   
