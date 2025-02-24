@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import {collection, getDocs, doc, getDoc, setDoc, updateDoc, deleteDoc, deleteField, query, where, orderBy} from 'firebase/firestore'
-import { ref, uploadBytes, getDownloadURL  } from 'firebase/storage'
+import { ref as storageRef, getDownloadURL, uploadBytesResumable  } from 'firebase/storage'
 
 export const useProdetailsStore = defineStore('details', () => {
     const providerDetails = ref(null)
@@ -110,37 +110,61 @@ export const useProdetailsStore = defineStore('details', () => {
         uploading.value = true;
         uploadError.value = null;
 
+        console.log("🚀 ~ file", file)
+    
         if (!file) {
             uploadError.value = 'No file selected.';
-            return false; // Return false on error
+            uploading.value = false;
+            return false;
         }
         if (!id) {
             uploadError.value = 'No User Id Detected.';
-            return false; // Return false on error
+            uploading.value = false;
+            return false;
         }
         if (!file.type.startsWith('image/')) {
             uploadError.value = 'Only image files are allowed.';
-            return false; // Return false on error
+            uploading.value = false;
+            return false;
         }
-
+    
         try {
             const { $db, $storage } = useNuxtApp();
-            const storageRef = ref($storage, `profileImages/${id}/${file.name}`);
-            const snapshot = await uploadBytes(storageRef, file);
-            const downloadURL = await getDownloadURL(snapshot.ref);
-
-            const providerRef = doc($db, 'REGISTERED_PROVIDERS', id);
-            await updateDoc(providerRef, {
-                ProfilePicture: downloadURL,
+            const storageReff = storageRef($storage, `profileImages/${id}/${file.name}`);
+            
+            const uploadTask = uploadBytesResumable(storageReff, file);
+    
+            await new Promise((resolve, reject) => {
+                uploadTask.on(
+                    "state_changed",
+                    null,
+                    (error) => {
+                        uploadError.value = error.message;
+                        uploading.value = false;
+                        reject(error);
+                    },
+                    async () => {
+                        const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+                        const providerRef = doc($db, 'REGISTERED_PROVIDERS', id);
+                        await updateDoc(providerRef, { ProfilePicture: downloadURL });
+                        uploading.value = false;
+                        resolve(downloadURL);
+                    }
+                );
             });
-            uploading.value = false;
-            return true; // Return true on success
+    
+            return true;
         } catch (error) {
             uploadError.value = error.message;
             uploading.value = false;
-            return false; // Return false on error
+            return false;
         }
     };
+
+    // const handleFile = async(id,file) => {
+    //     console.log("🚀 ~ file", file, id)
+    // }
+    
     
     
 
@@ -171,6 +195,7 @@ export const useProdetailsStore = defineStore('details', () => {
         updateInfo,
         uploadError,
         uploading,
-        changeProfilePicture
+        changeProfilePicture,
+        handleFile
     }
 })

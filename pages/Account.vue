@@ -53,11 +53,11 @@
         <div class="formDetails" v-show="showSignIn">
             <input type="email" placeholder="Email" v-model="loginDetails.email">
             <input type="password" placeholder="Password" v-model="loginDetails.password">
-            <button @click="loginProvider">Sign in</button>
+            <button @click="loginProvider">{{ providerStore.isLoading ? 'Login in...' : 'Sign in' }}</button>
 
             <div class="already">
                 <h3 @click="showPasswordForgot">Forgot password?</h3>
-                <h3>Don't have an account? <span @click="showRegister">{{ providerStore.isLoading ? 'Login in...' : 'Sign in' }}</span></h3>
+                <h3>Don't have an account? <span @click="showRegister">Register</span></h3>
             </div>
         </div>
 

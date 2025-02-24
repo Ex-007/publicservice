@@ -4,7 +4,7 @@
       <aside class="sidebar">
           <h2 class='dashsay'>Dashboard</h2>
         <div class='profileP'>
-            <img src="/public/img/profilepicture.jpeg" alt="Profile Picture" class="profilePicture" />
+            <img :src="providerInfo.ProfilePicture || '/img/profilepicture.jpeg'" alt="Profile Picture" class="profilePicture" />
         </div>
         <ul>
           <li @click="activeTab = 'home'" :class="{ active: activeTab === 'home' }">🏠 Home</li>
@@ -112,6 +112,10 @@
   const proDetails = useProdetailsStore()
   const providerStore = useProviderStore(); 
 
+
+  import {collection, getDocs, doc, getDoc, setDoc, updateDoc, deleteDoc, deleteField, query, where, orderBy} from 'firebase/firestore'
+import { ref as storageRef, getDownloadURL, uploadBytesResumable, uploadBytes  } from 'firebase/storage'
+
   const getVerified = () => {
     router.push('/Verification')
   }
@@ -196,16 +200,110 @@
 };
 
 // CHANGE PROFILE PICTURE
-  const handleImageUpload = async (event) => {
-    const file = event.target.files[0]
-    const success = await proDetails.changeProfilePicture(id, file)
-    if(success){
-      alert('image uploaded')
-    }else{
-      console.log('upload error')
-    }
 
+const handleImageUpload = async (event) => {
+  const file = event.target.files[0];
+
+  if (!file) {
+    // uploadError.value = 'No file selected.';
+    console.log('no file selected')
+    return;
   }
+  if (!id) {
+    // uploadError.value = 'No User Id Detected.';
+    throw new Error("⚠️ Invalid provider ID: " + id);
+    console.log('no user id detected')
+  }
+  if (!file.type.startsWith('image/')) {
+    // uploadError.value = 'Only image files are allowed.';
+    console.log('only image files are allowed')
+    return;
+  }
+
+  try {
+    const { $db, $storage } = useNuxtApp();
+    const storageReff = storageRef($storage, `profileImages/${id}/${file.name}`);
+
+    // Upload with progress tracking
+    const uploadTask = uploadBytesResumable(storageReff, file);
+
+    uploadTask.on(
+      "state_changed",
+      (snapshot) => {
+        // Calculate progress percentage
+        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        console.log(`Upload is ${progress.toFixed(2)}% done`);
+        // uploadProgress.value = progress; 
+      },
+      (error) => {
+        console.error("Upload error:", error);
+        // uploadError.value = "Upload failed. Please try again.";
+      },
+      async () => {
+        // Get download URL on successful upload
+        const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+
+        // Update Firestore document with the image URL
+        const providerRef = doc($db, 'REGISTERED_PROVIDERS', id);
+        await updateDoc(providerRef, {
+          ProfilePicture: downloadURL,
+        });
+
+        alert("Upload successful!");
+      }
+    );
+  } catch (error) {
+    console.error(error);
+    // uploadError.value = "Something went wrong.";
+  }
+};
+
+// const handleImageUpload = async (event) => {
+//   const file = event.target.files[0];
+
+//           if (!file) {
+//             uploadError.value = 'No file selected.';
+//             return;
+//           }
+//           if (!id) {
+//             uploadError.value = 'No User Id Detected.';
+//             throw new Error("⚠️ Invalid provider ID: " + id);
+//             }
+//           if (!file.type.startsWith('image/')) {
+//             uploadError.value = 'Only image files are allowed.';
+//             return;
+//           }
+
+
+//           try {
+              
+//             const { $db, $storage } = useNuxtApp()
+//             const storageReff = storageRef($storage, `profileImages/${id}/${file.name}`);
+//             const snapshot = await uploadBytes(storageReff, file);
+//             const downloadURL = await getDownloadURL(snapshot.ref);
+
+//             const providerRef = doc($db, 'REGISTERED_PROVIDERS', id)
+//             await updateDoc(providerRef, {
+//                 ProfilePicture : downloadURL
+//             })
+//             alert('upload successful')
+            
+//         } catch (error) {
+//             console.log(error)
+//         }
+// };
+
+
+// const handleImageUpload = async (event) => {
+//   const file = event.target.files[0];
+//   if (!file) return;
+  
+//     const success = await proDetails.changeProfilePicture(id, file);
+//     if (success) {
+//         alert("Profile picture updated successfully!");
+//     }
+// };
+
 
 
 
