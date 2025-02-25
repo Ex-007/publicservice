@@ -1,14 +1,34 @@
 <template>
     <div class="search-page">
       <!-- Search Bar -->
-      <div class="search-container">
+      <!-- <div class="search-container">
         <input 
           type="text" 
           v-model="searchQuery" 
           placeholder="Search for a service (e.g., Plumber, Mechanic)" 
           @input="searchProviders"
         />
-      </div>
+      </div> -->
+
+      <div class="dropdown">
+    <div class="input-container">
+      <input
+        type="text"
+        v-model="searchTerm"
+        @focus="isOpen = true"
+        @blur="closeDropdown"
+        placeholder="Search or select an option..."
+        class="search-input"
+      />
+      <button @click="logSelectedOption" class="log-button">Search</button>
+    </div>
+    <ul v-if="isOpen" class="dropdown-menu">
+      <li v-for="option in filteredOptions" :key="option" @mousedown="selectOption(option)">
+        {{ option }}
+      </li>
+      <li v-if="filteredOptions.length === 0" class="no-results">No results found</li>
+    </ul>
+  </div>
   
       <!-- Results -->
       <div v-if="filteredProviders.length > 0" class="results">
@@ -27,14 +47,14 @@
       </div>
   
       <!-- No Results -->
-      <div v-else class="no-results">
+      <!-- <div v-else class="no-results">
         <p>No providers found for "{{ searchQuery }}". Try another search.</p>
-      </div>
+      </div> -->
     </div>
   </template>
   
   <script setup>
-  import { ref } from "vue";
+  import { ref, computed } from "vue";
   
   // Dummy Data
   const providers = ref([
@@ -59,9 +79,143 @@
   const contactProvider = (phone) => {
     alert(`Calling ${phone}...`);
   };
+
+
+  const options = ref(["Mechanic", "Tailor", "Taxi", "Hairdresser", "Plumber", "Electrician", "Carpenter", "Painter", "Gardener", "Chef", "Barber", "Makeup Artist", "Photographer", "Tutor", "Driver"]);
+const searchTerm = ref("");
+const isOpen = ref(false);
+const selectedOption = ref("");
+
+const filteredOptions = computed(() => {
+  return options.value.filter(option =>
+    option.toLowerCase().includes(searchTerm.value.toLowerCase())
+  );
+});
+
+const selectOption = (option) => {
+  selectedOption.value = option;
+  searchTerm.value = option;
+  isOpen.value = false;
+};
+
+const closeDropdown = () => {
+  setTimeout(() => {
+    isOpen.value = false;
+  }, 200);
+};
+
+const logSelectedOption = () => {
+  console.log("Selected Option:", selectedOption.value);
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   </script>
   
   <style scoped>
+
+.dropdown {
+  position: relative;
+  width: 250px;
+}
+.input-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100vw;
+}
+/* .search-input {
+  flex: 1;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+} */
+.log-button {
+  margin-left: 8px;
+  padding: 8px;
+  border: 1px solid #ccc;
+  background: #007bff;
+  color: white;
+  cursor: pointer;
+  border-radius: 4px;
+}
+.dropdown-menu {
+  position: absolute;
+  width: 100%;
+  background: white;
+  border: 1px solid #ccc;
+  max-height: 200px;
+  overflow-y: auto;
+  border-radius: 4px;
+  margin-top: 2px;
+  padding: 0;
+  list-style: none;
+}
+.dropdown-menu li {
+  padding: 8px;
+  cursor: pointer;
+}
+.dropdown-menu li:hover {
+  background: #007bff;
+  color: white;
+}
+.no-results {
+  padding: 8px;
+  text-align: center;
+  color: #007bff;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   .search-page {
     padding: 20px;
   }
@@ -70,13 +224,20 @@
     margin-bottom: 20px;
   }
   
-  input {
-    width: 100%;
+  .search-input {
+    width: 80%;
     padding: 10px;
     font-size: 16px;
     border: 2px solid #007bff;
     border-radius: 5px;
   }
+  /* input {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border: 2px solid #007bff;
+    border-radius: 5px;
+  } */
   
   .results {
     margin-top: 20px;
