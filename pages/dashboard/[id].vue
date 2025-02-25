@@ -5,6 +5,7 @@
           <h2 class='dashsay'>Dashboard</h2>
         <div class='profileP'>
             <img :src="providerInfo.ProfilePicture || '/img/profilepicture.jpeg'" alt="Profile Picture" class="profilePicture" />
+            <p v-if="tracking">{{tracking}}</p>
         </div>
         <ul>
           <li @click="activeTab = 'home'" :class="{ active: activeTab === 'home' }">🏠 Home</li>
@@ -104,16 +105,20 @@
   
   <script setup>
   import { ref, watch, onMounted  } from 'vue';
+  // import {storeToRefs} from 'pinia'
+  // import { useProviderStore } from '@/stores/providerRegister'
+  import { useProdetailsStore } from '@/stores/fetchProviderDet'
+  const proDetails = useProdetailsStore()
+  // const providerStore = useProviderStore(); 
+
+  // const { providerDetailsFetch} = storeToRefs(proDetails)
+
   import { useRouter, useRoute } from 'vue-router';
   const router = useRouter();
   const route = useRoute()
-  import { useProviderStore } from '@/stores/providerRegister'
-  import { useProdetailsStore } from '@/stores/fetchProviderDet'
-  const proDetails = useProdetailsStore()
-  const providerStore = useProviderStore(); 
 
 
-  import {collection, getDocs, doc, getDoc, setDoc, updateDoc, deleteDoc, deleteField, query, where, orderBy} from 'firebase/firestore'
+  import {doc, updateDoc,} from 'firebase/firestore'
 import { ref as storageRef, getDownloadURL, uploadBytesResumable, uploadBytes  } from 'firebase/storage'
 
   const getVerified = () => {
@@ -138,13 +143,15 @@ import { ref as storageRef, getDownloadURL, uploadBytesResumable, uploadBytes  }
     router.push('/Premium');
   };
 
+  const tracking = ref('')
+
 //   WATCHER FOR THE LOGOUT ACTION
-    watch(() => providerStore.canProceed, (newVal) => {
-        if (newVal) {
-            localStorage.removeItem('userId');
-            router.push('/')
-        }
-    });
+    // watch(() => providerStore.canProceed, (newVal) => {
+    //     if (newVal) {
+    //         localStorage.removeItem('userId');
+    //         router.push('/')
+    //     }
+    // });
 
   const {id} = route.params;
 
@@ -166,6 +173,7 @@ import { ref as storageRef, getDownloadURL, uploadBytesResumable, uploadBytes  }
         lng : ''
     })
 
+    // FETCHING THE DETAILS OF THE PROVIDER
   const runFetchDetails = async () => {
         providerInfo.value.Address = proDetails.providerDetails.Address
         providerInfo.value.Firstname = proDetails.providerDetails.Firstname
@@ -183,8 +191,8 @@ import { ref as storageRef, getDownloadURL, uploadBytesResumable, uploadBytes  }
         providerInfo.value.lng = proDetails.providerDetails.lng
     }
 
+    // UPDATING THE USER INFORMATION
     const updateInfo = async () => {
-    console.log("🚀 Updating Provider:", id, providerInfo.value);
 
     const success = await proDetails.updateProvider(id, providerInfo.value);
     
@@ -200,23 +208,17 @@ import { ref as storageRef, getDownloadURL, uploadBytesResumable, uploadBytes  }
 };
 
 // CHANGE PROFILE PICTURE
-
 const handleImageUpload = async (event) => {
   const file = event.target.files[0];
 
   if (!file) {
-    // uploadError.value = 'No file selected.';
     console.log('no file selected')
     return;
   }
   if (!id) {
-    // uploadError.value = 'No User Id Detected.';
     throw new Error("⚠️ Invalid provider ID: " + id);
-    console.log('no user id detected')
   }
   if (!file.type.startsWith('image/')) {
-    // uploadError.value = 'Only image files are allowed.';
-    console.log('only image files are allowed')
     return;
   }
 
@@ -232,12 +234,10 @@ const handleImageUpload = async (event) => {
       (snapshot) => {
         // Calculate progress percentage
         const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        console.log(`Upload is ${progress.toFixed(2)}% done`);
-        // uploadProgress.value = progress; 
+        tracking.value = `Upload is ${progress.toFixed(2)}% done`
       },
       (error) => {
         console.error("Upload error:", error);
-        // uploadError.value = "Upload failed. Please try again.";
       },
       async () => {
         // Get download URL on successful upload
@@ -254,55 +254,9 @@ const handleImageUpload = async (event) => {
     );
   } catch (error) {
     console.error(error);
-    // uploadError.value = "Something went wrong.";
   }
 };
 
-// const handleImageUpload = async (event) => {
-//   const file = event.target.files[0];
-
-//           if (!file) {
-//             uploadError.value = 'No file selected.';
-//             return;
-//           }
-//           if (!id) {
-//             uploadError.value = 'No User Id Detected.';
-//             throw new Error("⚠️ Invalid provider ID: " + id);
-//             }
-//           if (!file.type.startsWith('image/')) {
-//             uploadError.value = 'Only image files are allowed.';
-//             return;
-//           }
-
-
-//           try {
-              
-//             const { $db, $storage } = useNuxtApp()
-//             const storageReff = storageRef($storage, `profileImages/${id}/${file.name}`);
-//             const snapshot = await uploadBytes(storageReff, file);
-//             const downloadURL = await getDownloadURL(snapshot.ref);
-
-//             const providerRef = doc($db, 'REGISTERED_PROVIDERS', id)
-//             await updateDoc(providerRef, {
-//                 ProfilePicture : downloadURL
-//             })
-//             alert('upload successful')
-            
-//         } catch (error) {
-//             console.log(error)
-//         }
-// };
-
-
-// const handleImageUpload = async (event) => {
-//   const file = event.target.files[0];
-//   if (!file) return;
-  
-//     const success = await proDetails.changeProfilePicture(id, file);
-//     if (success) {
-//         alert("Profile picture updated successfully!");
-//     }
-// };
 
 
 
@@ -335,15 +289,16 @@ const handleImageUpload = async (event) => {
 
 
 
-
+// import { nextTick } from "vue";
 
 
 
 
 // ONMOUNT TO FIRE THE DATABASE FETCH FOR THE PROVIDER
   onMounted(async () => {
-    await proDetails.providerDetailsFetch(id)
-    await runFetchDetails()
+      await proDetails.providerDetailsFetch(id)
+      await runFetchDetails()
+      
   })
 
   </script>
@@ -424,6 +379,7 @@ const handleImageUpload = async (event) => {
     justify-content: center;
     align-items: center;
     margin: 10px;
+    flex-direction: column;
   }
   .dashsay{
     display: flex;
