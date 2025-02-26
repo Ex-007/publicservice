@@ -4,18 +4,17 @@
         <div class="formDetails" v-show="showRegistration">
             <h3>Don't have an account? Register as a User</h3>
             <h3>Register as a Service Provider? <nuxt-link to="/Account">Service Provider</nuxt-link></h3>
-            <input type="text" placeholder="Full Name">
-            <input type="text" placeholder="Phone number">
-            <input type="email" placeholder="Email">
-            <input type="text" placeholder="Address">
-            <select>
-                <option>Gender</option>
+            <input type="text" placeholder="Full Name" v-model="userDetails.fullName">
+            <input type="text" placeholder="Phone number" v-model="userDetails.phoneNumber">
+            <input type="email" placeholder="Email" v-model="userDetails.email">
+            <input type="text" placeholder="Address" v-model="userDetails.address">
+            <!-- <select v-model="userDetails.gender">
                 <option>Male</option>
                 <option>Female</option>
-            </select>
-            <input type="password" placeholder="Password">
-            <input type="password" placeholder="Confirm Password">
-            <button>Register</button>
+            </select> -->
+            <input type="password" placeholder="Password" v-model="userDetails.password">
+            <!-- <input type="password" placeholder="Confirm Password"> -->
+            <button @click="registerUser">Register</button>
 
             <div class="already">
                 <h3>Already have an account? <span @click="showSignInButton">Sign-in</span> or sign Up with</h3>
@@ -51,7 +50,11 @@
 </template>
 
 <script setup>
-    import {ref} from 'vue'
+    import {ref, watch, onMounted} from 'vue'
+    import {useUserStore} from '@/stores/userRegistration'
+    import { useRouter } from 'vue-router'
+    const router = useRouter()
+    const userStore = useUserStore()
     const showRegistration = ref(true)
     const showSignIn = ref(false)
     const passwordForgot = ref(false)
@@ -77,6 +80,55 @@
         showRegistration.value = false
         passwordForgot.value = true
     }
+
+    const userDetails = ref({
+        fullName: '',
+        phoneNumber: '',
+        email: '',
+        address: userStore.addressFetched,
+        lat : ref(localStorage.getItem('lat') || null).value,
+        lng : ref(localStorage.getItem('lng') || null).value,
+        password: '',
+    })
+
+
+
+    const registerUser = async () => {
+
+        await userStore.registerUser(userDetails.value)
+    }
+
+        // ✅ Watch canProceed and navigate when it turns true and Fetch the userId from the localstorage
+    watch(() => userStore.canProceed, (newVal) => {
+        if (newVal) {
+            const userId = ref(localStorage.getItem('userIdd') || null);
+            let userRegId = userId.value
+            router.push(`/Userdash/${userRegId}`)
+        }
+    });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    onMounted(async () => {
+      await userStore.getLocation()
+      
+  })
+
+
 </script>
 
 <style scoped>
