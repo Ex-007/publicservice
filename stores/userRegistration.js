@@ -71,7 +71,6 @@ export const useUserStore = defineStore('userauth', () => {
         }
     };
 
-
     // REGISTERING THE USER
     const registerUser = async (userDetails) => {
         isLoading.value = true
@@ -188,6 +187,7 @@ export const useUserStore = defineStore('userauth', () => {
         userIdd, 
         isLoading,
         error,
+        canProceed,
         registerUser,
         signinProviders,
         addressFetched,
