@@ -121,7 +121,7 @@ const userDetailss = ref({
   lng: ""
 })
 
-// function to update the profile
+// FUNCTION TO UPDATE PROFILE DETAILS IN THE UI
 const updateProfile = () => {
   console.log(usersDet.userDetails)
   userDetailss.value.displayName = usersDet.userDetails.Fullname
@@ -133,10 +133,14 @@ const updateProfile = () => {
 }
 
 
-// fuchdfuhyiudehqqqwertryyuiopl
+
+// FUNCTION TO SEARCH
 const logSelectedOption = () => {
+  const latitudes = userDetailss.value.lat
+  const longitudes = userDetailss.value.lng
   console.log("Selected Option:", selectedOption.value);
-  console.log("userId:", userRegId);
+  console.log("LAT:", latitudes);
+  console.log("LNG:", longitudes);
 };
 
 
