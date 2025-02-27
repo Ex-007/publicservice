@@ -92,7 +92,6 @@
     // const startChat = () => {
     //   router.push('/chats/123');
     // };
-
     onMounted(() => {
       incomingInfo.value.ProviderId = route.params.id
       incomingInfo.value.userLat = route.query.lat
