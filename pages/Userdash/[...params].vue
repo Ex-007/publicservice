@@ -40,7 +40,8 @@
                 path: `/providers/${provider.id}`,
                 query: {
                   lat: provider.providerLat,
-                  lng: provider.providerLat
+                  lng: provider.providerLng,
+                  distance: provider.distance
                 }
               }" 
               class="provider-card">
@@ -152,19 +153,6 @@ const incoming = ref([])
 const logValue = async () => {
   incoming.value = usersDet.providers
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

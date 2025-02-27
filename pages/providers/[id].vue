@@ -93,11 +93,17 @@
     //   router.push('/chats/123');
     // };
     onMounted(() => {
-      incomingInfo.value.ProviderId = route.params.id
-      incomingInfo.value.userLat = route.query.lat
-      incomingInfo.value.userLon = route.query.lng
+      // incomingInfo.value.ProviderId = route.params.id
+      // incomingInfo.value.userLat = route.query.lat
+      // incomingInfo.value.userLon = route.query.lng
 
-      console.log(incomingInfo.value)
+      const userId = incomingInfo.value.ProviderId
+      const userLat = incomingInfo.value.userLat
+      const userLon = incomingInfo.value.userLon
+
+      console.log(userId)
+      console.log(userLat)
+      console.log(userLon)
     })
   </script>
   
