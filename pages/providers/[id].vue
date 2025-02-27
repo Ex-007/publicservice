@@ -90,9 +90,7 @@
     //   route.push(`/chats/${id}`);
     // };
     const startChat = () => {
-    //     alert('i am here');
       router.push('/chats/123');
-        // router.push('/Account');
     };
 
     onMounted(() => {
