@@ -7,7 +7,6 @@
         <div class="otherUserDetails">
           <h3 class="displayName">{{ userDetailss.displayName }}</h3>
           <p class="email">{{ userDetailss.email }}</p>
-          <p>{{ usersDet.availableProviders }}</p>
         </div>
       </div>
       <div class="dropdown">
@@ -30,23 +29,27 @@
         </ul>
       </div>
   
-      <!-- Results -->
+     
+
       <div v-if="usersDet.availableProviders" class="results">
-        <h2>Available Providers</h2>
+        <h2>Available Providers: {{ usersDet.availableProviders }}</h2>
         <ul>
-          <li v-for="(provider, index) in incoming" :key="index" class="provider-card">
-            <nuxt-link to="{
-              path: `/providers/${provider.id}`,
-              params: { 
-                provider: provider,
-              }
-            }" class="provider-card">
+          <li v-for="(provider, index) in incoming" :key="index">
+            <nuxt-link 
+              :to="{ 
+                path: `/providers/${provider.id}`,
+                query: {
+                  lat: provider.providerLat,
+                  lng: provider.providerLat
+                }
+              }" 
+              class="provider-card">
               <img :src="provider.ProfilePicture || '/img/profilepicture.jpeg'" alt="Provider Image" class="provider-image" />
               <div class="provider-info">
                 <h3>{{ provider.Firstname + " " + provider.Lastname }}</h3>
                 <p>📌 {{ provider.ServiceType }}</p>
                 <p>📍 {{ provider.distance }} km away</p>
-                <button @click="contactProvider(provider.PhoneNumber)">📞 Contact</button>
+                <button @click.prevent="contactProvider(provider.PhoneNumber)">📞 Contact</button>
               </div>
             </nuxt-link>
           </li>
@@ -71,14 +74,7 @@
 
   const params = route.params.params || [];
   const [userRegId] = params;
-  
-  // Dummy Data
-  // const providers = ref([
-  //   { id: 1, name: "John Doe", serviceType: "Plumber", phone: "123-456-7890", distance: 2, image: "/img/welder.jpeg" },
-  //   { id: 2, name: "Sarah Smith", serviceType: "Electrician", phone: "987-654-3210", distance: 4, image: "/img/welder.jpeg" },
-  //   { id: 3, name: "Michael Lee", serviceType: "Mechanic", phone: "555-123-4567", distance: 3, image: "/img/mechanic.jpeg" },
-  //   { id: 4, name: "Emma Brown", serviceType: "Tailor", phone: "333-999-0000", distance: 1, image: "/img/tailor.jpeg" }
-  // ]);
+
   
   const resultIn = ref({
     profilePicture: "",
@@ -89,16 +85,6 @@
   })
 
 
-  // const searchQuery = ref("");
-  // const filteredProviders = ref(incoming.value);
-  
-  // Search Function
-  // const searchProviders = () => {
-  //   const query = searchQuery.value.toLowerCase();
-  //   filteredProviders.value = incoming.value.filter(provider => 
-  //     provider.serviceType.toLowerCase().includes(query)
-  //   );
-  // };
   
   // Contact Provider
   const contactProvider = (phone) => {
@@ -157,23 +143,14 @@ const logSelectedOption = async () => {
   const longitudes = userDetailss.value.lng
   console.log("Selected Option:", selectedOption.value);
   await usersDet.getProviderFromSearch(selectedOption.value, latitudes, longitudes)
-  // console.log("LAT:", latitudes);
-  // console.log("LNG:", longitudes);
   logValue()
 };
 
 const incoming = ref([])
 
+// FETCH THE INCOMING VALUE
 const logValue = async () => {
   incoming.value = usersDet.providers
-
-  // incoming.value.forEach((element) => {
-  //   console.log(element)
-  //   console.log(element.Address)
-  // })
-  // console.log(incoming.value.distance)
-  // console.log(usersDet.providers[0].value)
-  // usersDet.availableProviders
 }
 
 
@@ -338,13 +315,7 @@ onMounted(async () => {
     border: 2px solid #007bff;
     border-radius: 5px;
   }
-  /* input {
-    width: 100%;
-    padding: 10px;
-    font-size: 16px;
-    border: 2px solid #007bff;
-    border-radius: 5px;
-  } */
+
   
   .results {
     margin-top: 20px;
@@ -363,13 +334,17 @@ onMounted(async () => {
     border-radius: 10px;
     margin-bottom: 10px;
     border: 1px solid #ddd;
+    width: 100%;
+    justify-content: space-between;
+    cursor: pointer;
+    gap: 100px;
   }
   
   .provider-image {
-    width: 50px;
-    height: 50px;
+    width: 100px;
+    height: 100px;
     border-radius: 50%;
-    margin-right: 15px;
+    margin: 0 15px;
   }
   
   .provider-info {

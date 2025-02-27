@@ -155,10 +155,10 @@ export const useUsersStore = defineStore('details', () => {
                 // console.log(distance);
     
                 if (distance <= 40) {
-                    within2km.push({ ...providerData, id: docc.id, distance });
+                    within2km.push({ ...providerData, id: docc.id, distance, providerLat, providerLng });
                     // console.log(within2km);
                 } else if (distance <= 4) {
-                    within4km.push({ ...providerData, id: docc.id, distance });
+                    within4km.push({ ...providerData, id: docc.id, distance, providerLat, providerLng });
                 }
             });
     
