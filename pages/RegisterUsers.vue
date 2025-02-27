@@ -25,9 +25,9 @@
         <!-- SIGN IN -->
 
         <div class="formDetails" v-show="showSignIn">
-            <input type="email" placeholder="Email">
-            <input type="password" placeholder="Password">
-            <button>Sign in</button>
+            <input type="email" placeholder="Email" v-model="signDetails.email">
+            <input type="password" placeholder="Password" v-model="signDetails.password">
+            <button @click="loginUser">{{ userStore.isLoading ? "Signing in..." : "Sign in" }}</button>
 
             <div class="already">
                 <h3 @click="showPasswordForgot">Forgot password?</h3>
@@ -81,6 +81,7 @@
         passwordForgot.value = true
     }
 
+    // REGISTER USER DETAILS REFERENCE
     const userDetails = ref({
         fullName: '',
         phoneNumber: '',
@@ -91,11 +92,24 @@
         password: '',
     })
 
-
-
+// REGISTER USER
     const registerUser = async () => {
 
         await userStore.registerUser(userDetails.value)
+    }
+
+    // SIGN IN USERS REFERENCE
+    const signDetails = ref({
+        email : '',
+        password : ''
+    })
+    // SIGN IN USER
+    const loginUser = async () => {
+        if(signDetails.value.email === '' || signDetails.value.password == '') {
+            alert('Please fill all details')
+            return
+        }
+        await userStore.signinUser(signDetails.value)
     }
 
         // ✅ Watch canProceed and navigate when it turns true and Fetch the userId from the localstorage
@@ -104,6 +118,7 @@
             const userId = ref(localStorage.getItem('userIdd') || null);
             let userRegId = userId.value
             router.push(`/Userdash/${userRegId}`)
+            // router.push(`/Userdash/${userRegId}`)
         }
     });
 

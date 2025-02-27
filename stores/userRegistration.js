@@ -39,7 +39,7 @@ export const useUserStore = defineStore('userauth', () => {
             // console.log('Address:', addressFetched.value);
         } catch (err) {
             error.value = err.message || 'An error occurred while reverse geocoding';
-            console.log(error.value);
+            console.log(error.value, 'Please Ensure network connectivity');
         } finally {
             isLoading.value = false;
         }
@@ -126,19 +126,19 @@ export const useUserStore = defineStore('userauth', () => {
     }
 
     // SIGNING IN PROVIDERS
-    const signinProviders = async (loginDetails) => {
+    const signinUser = async (signDetails) => {
         isLoading.value = true
         error.value = null
         canProceed.value = false
         try {
             const { $auth } = useNuxtApp()
-            var email = loginDetails.email
-            var password = loginDetails.password
+            var email = signDetails.email
+            var password = signDetails.password
 
             const userCredential = await signInWithEmailAndPassword($auth, email, password)
             if(userCredential){
                 let userId = userCredential.user.uid
-                localStorage.setItem('userId', userId);
+                localStorage.setItem('userIdd', userId);
 
                 setTimeout(() => {
                     canProceed.value = true
@@ -189,7 +189,7 @@ export const useUserStore = defineStore('userauth', () => {
         error,
         canProceed,
         registerUser,
-        signinProviders,
+        signinUser,
         addressFetched,
         getLocation
     }

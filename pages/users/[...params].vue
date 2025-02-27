@@ -55,7 +55,7 @@
   <script setup>
   import { ref, computed, onMounted } from "vue";
   import { useRouter, useRoute } from "vue-router";
-  import { useUsersStore } from "@/stores/fetchUserDet";
+  import { useUsersStore } from "@/store/fetchUserDet";
   const usersDet = useUsersStore();
 
   const route = useRoute();
@@ -121,9 +121,7 @@ const userDetailss = ref({
   lng: ""
 })
 
-// function to update the profile
 const updateProfile = () => {
-  console.log(usersDet.userDetails)
   userDetailss.value.displayName = usersDet.userDetails.Fullname
   userDetailss.value.profilePicture = usersDet.userDetails.ProfilePicture
   userDetailss.value.email = usersDet.userDetails.Email
@@ -133,7 +131,7 @@ const updateProfile = () => {
 }
 
 
-// fuchdfuhyiudehqqqwertryyuiopl
+
 const logSelectedOption = () => {
   console.log("Selected Option:", selectedOption.value);
   console.log("userId:", userRegId);
@@ -159,7 +157,6 @@ const logSelectedOption = () => {
 
 
 onMounted(async () => {
-  console.log(userRegId)
       await usersDet.userDetailsFetch(userRegId)
       updateProfile()
       
