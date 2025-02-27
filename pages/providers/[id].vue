@@ -73,11 +73,18 @@
   </template>
   
   <script setup>
+  import { ref, onMounted } from 'vue'
     import { useRouter, useRoute } from 'vue-router'
     const router = useRouter()
     const route = useRoute()
 
-    const {id} = route.params;
+    // const {id} = route.params;
+
+    const incomingInfo = ref({
+      ProviderId: '',
+      userLat : '',
+      userLon: ''
+    })
 
     // const startChat = () => {
     //   route.push(`/chats/${id}`);
@@ -87,6 +94,14 @@
       router.push('/chats/123');
         // router.push('/Account');
     };
+
+    onMounted(() => {
+      incomingInfo.value.ProviderId = route.params.id
+      incomingInfo.value.userLat = route.query.lat
+      incomingInfo.value.userLon = route.query.lng
+
+      console.log(incomingInfo.value)
+    })
   </script>
   
   <style scoped>

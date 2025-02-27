@@ -49,7 +49,7 @@
                 <h3>{{ provider.Firstname + " " + provider.Lastname }}</h3>
                 <p>📌 {{ provider.ServiceType }}</p>
                 <p>📍 {{ provider.distance }} km away</p>
-                <button @click.prevent="contactProvider(provider.PhoneNumber)">📞 Contact</button>
+                <a :href="`tel:${provider.PhoneNumber}`" class="phone-button" @click.stop>📞 Contact</a>
               </div>
             </nuxt-link>
           </li>
@@ -269,6 +269,17 @@ onMounted(async () => {
   color: #007bff;
 }
 
+.phone-button{
+  color: white;
+  background-color: #007bff;
+  padding: 5px;
+  margin: 5px 0;
+  border-radius: 20px;
+}
+.phone-button:hover{
+  background-color: white;
+  color: #007bff;
+}
 
 
 
@@ -337,7 +348,14 @@ onMounted(async () => {
     width: 100%;
     justify-content: space-between;
     cursor: pointer;
-    gap: 100px;
+    gap: 50px;
+  }
+
+  li{
+    list-style-type: none;
+  }
+  a{
+    text-decoration: none;
   }
   
   .provider-image {
