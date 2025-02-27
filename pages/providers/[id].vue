@@ -89,9 +89,9 @@
     // const startChat = () => {
     //   route.push(`/chats/${id}`);
     // };
-    const startChat = () => {
-      router.push('/chats/123');
-    };
+    // const startChat = () => {
+    //   router.push('/chats/123');
+    // };
 
     onMounted(() => {
       incomingInfo.value.ProviderId = route.params.id
