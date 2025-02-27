@@ -7,6 +7,7 @@
         <div class="otherUserDetails">
           <h3 class="displayName">{{ userDetailss.displayName }}</h3>
           <p class="email">{{ userDetailss.email }}</p>
+          <p>{{ usersDet.availableProviders }}</p>
         </div>
       </div>
       <div class="dropdown">
@@ -30,24 +31,31 @@
       </div>
   
       <!-- Results -->
-      <div v-if="filteredProviders.length > 0" class="results">
+      <div v-if="usersDet.availableProviders" class="results">
         <h2>Available Providers</h2>
         <ul>
-          <li v-for="provider in filteredProviders" :key="provider.id" class="provider-card">
-            <img :src="provider.image" alt="Provider Image" class="provider-image" />
-            <div class="provider-info">
-              <h3>{{ provider.name }}</h3>
-              <p>📌 {{ provider.serviceType }}</p>
-              <p>📍 {{ provider.distance }} km away</p>
-              <button @click="contactProvider(provider.phone)">📞 Contact</button>
-            </div>
+          <li v-for="(provider, index) in incoming" :key="index" class="provider-card">
+            <nuxt-link to="{
+              path: `/providers/${provider.id}`,
+              params: { 
+                provider: provider,
+              }
+            }" class="provider-card">
+              <img :src="provider.ProfilePicture || '/img/profilepicture.jpeg'" alt="Provider Image" class="provider-image" />
+              <div class="provider-info">
+                <h3>{{ provider.Firstname + " " + provider.Lastname }}</h3>
+                <p>📌 {{ provider.ServiceType }}</p>
+                <p>📍 {{ provider.distance }} km away</p>
+                <button @click="contactProvider(provider.PhoneNumber)">📞 Contact</button>
+              </div>
+            </nuxt-link>
           </li>
         </ul>
       </div>
   
       <!-- No Results -->
       <div v-else class="no-results">
-        <p>No providers found for "{{ searchQuery }}". Try another search.</p>
+        <p>No providers found</p>
       </div>
     </div>
   </template>
@@ -65,23 +73,32 @@
   const [userRegId] = params;
   
   // Dummy Data
-  const providers = ref([
-    { id: 1, name: "John Doe", serviceType: "Plumber", phone: "123-456-7890", distance: 2, image: "/img/welder.jpeg" },
-    { id: 2, name: "Sarah Smith", serviceType: "Electrician", phone: "987-654-3210", distance: 4, image: "/img/welder.jpeg" },
-    { id: 3, name: "Michael Lee", serviceType: "Mechanic", phone: "555-123-4567", distance: 3, image: "/img/mechanic.jpeg" },
-    { id: 4, name: "Emma Brown", serviceType: "Tailor", phone: "333-999-0000", distance: 1, image: "/img/tailor.jpeg" }
-  ]);
+  // const providers = ref([
+  //   { id: 1, name: "John Doe", serviceType: "Plumber", phone: "123-456-7890", distance: 2, image: "/img/welder.jpeg" },
+  //   { id: 2, name: "Sarah Smith", serviceType: "Electrician", phone: "987-654-3210", distance: 4, image: "/img/welder.jpeg" },
+  //   { id: 3, name: "Michael Lee", serviceType: "Mechanic", phone: "555-123-4567", distance: 3, image: "/img/mechanic.jpeg" },
+  //   { id: 4, name: "Emma Brown", serviceType: "Tailor", phone: "333-999-0000", distance: 1, image: "/img/tailor.jpeg" }
+  // ]);
   
-  const searchQuery = ref("");
-  const filteredProviders = ref(providers.value);
+  const resultIn = ref({
+    profilePicture: "",
+    displayName: "",
+    distance : "",
+    serviceType: "",
+    phone: "",
+  })
+
+
+  // const searchQuery = ref("");
+  // const filteredProviders = ref(incoming.value);
   
   // Search Function
-  const searchProviders = () => {
-    const query = searchQuery.value.toLowerCase();
-    filteredProviders.value = providers.value.filter(provider => 
-      provider.serviceType.toLowerCase().includes(query)
-    );
-  };
+  // const searchProviders = () => {
+  //   const query = searchQuery.value.toLowerCase();
+  //   filteredProviders.value = incoming.value.filter(provider => 
+  //     provider.serviceType.toLowerCase().includes(query)
+  //   );
+  // };
   
   // Contact Provider
   const contactProvider = (phone) => {
@@ -123,7 +140,7 @@ const userDetailss = ref({
 
 // FUNCTION TO UPDATE PROFILE DETAILS IN THE UI
 const updateProfile = () => {
-  console.log(usersDet.userDetails)
+  // console.log(usersDet.userDetails)
   userDetailss.value.displayName = usersDet.userDetails.Fullname
   userDetailss.value.profilePicture = usersDet.userDetails.ProfilePicture
   userDetailss.value.email = usersDet.userDetails.Email
@@ -135,14 +152,29 @@ const updateProfile = () => {
 
 
 // FUNCTION TO SEARCH
-const logSelectedOption = () => {
+const logSelectedOption = async () => {
   const latitudes = userDetailss.value.lat
   const longitudes = userDetailss.value.lng
   console.log("Selected Option:", selectedOption.value);
-  console.log("LAT:", latitudes);
-  console.log("LNG:", longitudes);
+  await usersDet.getProviderFromSearch(selectedOption.value, latitudes, longitudes)
+  // console.log("LAT:", latitudes);
+  // console.log("LNG:", longitudes);
+  logValue()
 };
 
+const incoming = ref([])
+
+const logValue = async () => {
+  incoming.value = usersDet.providers
+
+  // incoming.value.forEach((element) => {
+  //   console.log(element)
+  //   console.log(element.Address)
+  // })
+  // console.log(incoming.value.distance)
+  // console.log(usersDet.providers[0].value)
+  // usersDet.availableProviders
+}
 
 
 
@@ -163,7 +195,7 @@ const logSelectedOption = () => {
 
 
 onMounted(async () => {
-  console.log(userRegId)
+  // console.log(userRegId)
       await usersDet.userDetailsFetch(userRegId)
       updateProfile()
       
