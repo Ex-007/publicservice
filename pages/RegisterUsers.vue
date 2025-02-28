@@ -12,7 +12,8 @@
                 <option>Male</option>
                 <option>Female</option>
             </select> -->
-            <input type="password" placeholder="Password" v-model="userDetails.password">
+            <input :type="passwordVisible ? 'text' : 'password'" placeholder="Password" v-model="userDetails.password">
+            <button @click.prevent="togglePasswordVisibility" type="button">{{ passwordVisible ? 'Hide' : 'Show' }} Password</button>
             <!-- <input type="password" placeholder="Confirm Password"> -->
             <button @click="registerUser">Register</button>
 
@@ -26,7 +27,8 @@
 
         <div class="formDetails" v-show="showSignIn">
             <input type="email" placeholder="Email" v-model="signDetails.email">
-            <input type="password" placeholder="Password" v-model="signDetails.password">
+            <input :type="passwordVisible ? 'text' : 'password'"  placeholder="Password" v-model="signDetails.password">
+            <button @click.prevent="togglePasswordVisibility" type="button">{{ passwordVisible ? 'Hide' : 'Show' }} Password</button>
             <button @click="loginUser">{{ userStore.isLoading ? "Signing in..." : "Sign in" }}</button>
 
             <div class="already">
@@ -92,6 +94,12 @@
         password: '',
     })
 
+    // const passwordVisible = ref(false)
+
+    // const togglePasswordVisibility = () => {
+    // passwordVisible.value = !passwordVisible.value
+    // }
+
 // REGISTER USER
     const registerUser = async () => {
 
@@ -103,6 +111,12 @@
         email : '',
         password : ''
     })
+
+    const passwordVisible = ref(false)
+
+    const togglePasswordVisibility = () => {
+    passwordVisible.value = !passwordVisible.value
+    }
     // SIGN IN USER
     const loginUser = async () => {
         if(signDetails.value.email === '' || signDetails.value.password == '') {

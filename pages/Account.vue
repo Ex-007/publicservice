@@ -37,9 +37,9 @@
             </select>
             <p v-if="errors.serviceType" class="error">{{ errors.serviceType }}</p>
 
-            <input type="password" placeholder="Password" v-model="registrationData.password">
+            <input :type="passwordVisible ? 'text' : 'password'" placeholder="Password" v-model="registrationData.password">
             <p v-if="errors.password" class="error">{{ errors.password }}</p>
-            <p @click="showHidePassword" class="showHide">{{ show }}</p>
+            <button @click.prevent="togglePasswordVisibility" type="button">{{ passwordVisible ? 'Hide' : 'Show' }} Password</button>
             <button @click="registerProviderBtn" :disabled="providerStore.isLoading">{{providerStore.isLoading ? 'Registering...' : "Register"}}</button>
 
             <div class="already">
@@ -52,7 +52,8 @@
 
         <div class="formDetails" v-show="showSignIn">
             <input type="email" placeholder="Email" v-model="loginDetails.email">
-            <input type="password" placeholder="Password" v-model="loginDetails.password">
+            <input :type="passwordVisible ? 'text' : 'password'" placeholder="Password" v-model="loginDetails.password">
+            <button @click.prevent="togglePasswordVisibility" type="button">{{ passwordVisible ? 'Hide' : 'Show' }} Password</button>
             <button @click="loginProvider">{{ providerStore.isLoading ? 'Login in...' : 'Sign in' }}</button>
 
             <div class="already">
@@ -125,6 +126,12 @@
         serviceType: '',
         password: '',
     })
+
+    const passwordVisible = ref(false)
+
+    const togglePasswordVisibility = () => {
+    passwordVisible.value = !passwordVisible.value
+    }
     
     // THE REGISTRATION ERROR
     const errors = ref({})
@@ -169,6 +176,7 @@
             return
         }
         await providerStore.signinProviders(loginDetails.value)
+        alert('Error: ', providerStore.error)
     }
 
 
