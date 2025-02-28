@@ -59,7 +59,7 @@
     onMounted(async () => {
         mapStore.setLocations(props.userLat, props.userLng, props.providerLat, props.providerLng)
         console.log(props.userLat, props.userLng, props.providerLat, props.providerLng)
-        map.value = $L.map('map').setView([props.userLat, props.userLng], 13)
+        map.value = $L.map('map').setView([props.userLat, props.userLng], 15)
 
         $L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution : '&copy; openstreetmap contributors'
