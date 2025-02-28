@@ -20,10 +20,10 @@
 
 
     const addMarkers =() => {
-        if(!mapStore.userLocation || !mapStore.providerLocation){
-            return
-        }
+        if(!mapStore.userLocation || !mapStore.providerLocation) return
 
+        console.log(mapStore.userLocation)
+        console.log(mapStore.providerLocation)
         markers.value.push($L.marker([mapStore.userLocation.lat, mapStore.userLocation.lng])
         .addTo(map.value)
         .bindPopup('You')
@@ -32,7 +32,7 @@
 
         markers.value.push($L.marker([mapStore.providerLocation.lat, mapStore.providerLocation.lng])
         .addTo(map.value)
-        .bindPopup('You')
+        .bindPopup('Provider')
         .openPopup()
         )
 
@@ -56,8 +56,9 @@
 
 
 
-    onMounted(() => {
+    onMounted(async () => {
         mapStore.setLocations(props.userLat, props.userLng, props.providerLat, props.providerLng)
+        console.log(props.userLat, props.userLng, props.providerLat, props.providerLng)
         map.value = $L.map('map').setView([props.userLat, props.userLng], 13)
 
         $L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -75,6 +76,6 @@
 <style scoped>
     .map{
         height: 400px;
-        width: 70vw;
+        width: 100%;
     }
 </style>

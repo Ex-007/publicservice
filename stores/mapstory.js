@@ -7,6 +7,7 @@ export const useMapStore = defineStore('auth', () => {
     const providerLocation = ref(null)
 
     const setLocations = (userLat, userLng, providerLat, providerLng) => {
+        console.log(userLat, userLng, providerLat)
         userLocation.value = {
             lat: userLat,
             lng: userLng

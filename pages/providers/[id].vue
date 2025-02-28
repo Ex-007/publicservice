@@ -68,7 +68,8 @@
       <!-- Map Section -->
       <div class="map-section">
         <h3>📍 Location on Map</h3>
-        <div class="map-placeholder">Map will be integrated here</div>
+        <Map v-bind="mapDetails"/>
+        <!-- <div class="map-placeholder">Map will be integrated here</div> -->
       </div>
     </div>
   </template>
@@ -101,6 +102,8 @@
       profilePicture: '',
       isVerified: '',
       describe: '',
+      lat: '',
+      lng: '',
       // Description : computed(() => {
       //   truncateDesciption(provider.value.describe, 20)
       // })
@@ -122,6 +125,8 @@
       provider.value.address = providerUser.userDetails.Address
       provider.value.isVerified = providerUser.userDetails.isVerified
       provider.value.describe = providerUser.userDetails.Description
+      provider.value.lat = providerUser.userDetails.lat
+      provider.value.lng = providerUser.userDetails.lng
     }
 
     // TRUNCATE THE ABOUT INFO
@@ -132,6 +137,13 @@
         return words.slice(0, wordLimit).join(" ") + "..."
       }
       return description
+    }
+
+    const mapDetails = {
+      userLat : route.query.lat,
+      userLng : route.query.lng,
+      providerLat : route.query.uselat,
+      providerLng : route.query.uselng
     }
 
     // const startChat = () => {
@@ -159,7 +171,7 @@
       const distance = route.query.distance
 
       await providerUser.userDetailsFetch(userRegId)
-      updateDetailsInfo()
+      await updateDetailsInfo()
     })
   </script>
   

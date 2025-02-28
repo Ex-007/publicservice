@@ -44,7 +44,9 @@
                 query: {
                   lat: provider.providerLat,
                   lng: provider.providerLng,
-                  distance: provider.distance
+                  distance: provider.distance,
+                  uselat: userDetailss.lat,
+                  uselng: userDetailss.lng
                 }
               }" 
               class="provider-card">
