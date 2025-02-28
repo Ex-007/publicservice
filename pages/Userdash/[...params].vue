@@ -1,14 +1,17 @@
 <template>
-    <div class="search-page">
-      <div class="userInfoDiv">
-        <div class="imgDiv">
-          <img :src="userDetailss.profilePicture || '/img/profilepicture.jpeg'" alt="userImage">
-        </div>
-        <div class="otherUserDetails">
-          <h3 class="displayName">{{ userDetailss.displayName }}</h3>
-          <p class="email">{{ userDetailss.email }}</p>
-        </div>
+  <div>
+
+  
+    <div class="userInfoDiv">
+      <div class="imgDiv">
+        <img :src="userDetailss.profilePicture || '/img/profilepicture.jpeg'" alt="userImage">
       </div>
+      <div class="otherUserDetails">
+        <h3 class="displayName">{{ userDetailss.displayName }}</h3>
+        <p class="email">{{ userDetailss.email }}</p>
+      </div>
+    </div>
+  <div class="search-page">
       <div class="dropdown">
         <div class="input-container">
           <input
@@ -62,6 +65,7 @@
         <p>No providers found</p>
       </div>
     </div>
+  </div>
   </template>
   
   <script setup>
@@ -355,6 +359,7 @@ onMounted(async () => {
   
   .provider-info {
     flex-grow: 1;
+    gap: 5px;
   }
   
   button {
@@ -374,6 +379,23 @@ onMounted(async () => {
     text-align: center;
     color: gray;
     font-style: italic;
+  }
+
+
+  @media (max-width: 768px){
+    /* .userInfoDiv{
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin-right: auto;
+    } */
+    .imgDiv>img{
+      width: 50px;
+      height: 50px;
+    }
+    .otherUserDetails{
+      font-size: 15px;
+    }
   }
   </style>
   

@@ -2,29 +2,29 @@
     <div class="provider-details">
       <!-- Provider Header -->
       <div class="provider-header">
-        <img src="/public/img/mechanic.jpeg" alt="Provider Image" class="profile-image" />
+        <img :src="provider.profilePicture || '/img/profilepicture.jpeg'" alt="Provider Image" class="profile-image" />
         <h2 class="checkVeri">
-          Adebayo Adewale
-          <span class="verified">✔️ Verified</span>
+          {{provider.firstname + ' ' + provider.lastname}}
+          <span class="verified" v-if="provider.isVerified == true">✔️ {{provider.isVerified}}</span>
+          <span class="verified" v-else style="color: red;">❌ Not verified</span>
         </h2>
-        <p class="service-type"> Mechanic</p>
-        <p class="distance">📍 5 km away</p>
-        <p class="distance">{{ id }}</p>
+        <p class="service-type"> {{ provider.serviceType }}</p>
+        <p class="distance">📍 {{ incomingInfo.distance }} km away</p>
       </div>
   
       <!-- Provider Information -->
       <div class="provider-info">
-        <h3>About Adebayo Adewale</h3>
-        <p>A mechanic with years of experience</p>
+        <h3>About {{provider.firstname + ' ' + provider.lastname}}</h3>
+        <p>{{ Description }}</p>
   
         <h3>Service Details</h3>
         <p>⭐ Rating: 3/5</p>
-        <p class="available">✅ Available</p>
+        <p class="available">✅ {{ provider.available }}</p>
         <!-- <p class="busy">❌ Busy</p> -->
   
         <h3>Contact</h3>
-        <p>📞 <a href="'tel:' + provider.phone">123456789</a></p>
-        <p>📍 Hawkeye street</p>
+        <p><a :href="`tel:${provider.phone}`">📞 Call</a></p>
+        <p>📍 {{ provider.address }}</p>
   
         <div class="action-buttons">
           <button class="chat-btn" @click="startChat">💬 Chat</button>
@@ -34,14 +34,15 @@
       </div>
   
       <!-- Collapsible Reviews Section -->
-      <div class="reviews-section">
+      <!-- <div class="reviews-section">
         <h3 @click="toggleReviews" class="reviews-header">
           📢 Customer Reviews (9) 
           <span v-if="showReviews">⬆️</span>
           <span v-else>⬇️</span>
-        </h3>
+        </h3> -->
   
-        <div v-if="showReviews">
+        <!-- REVIEW SECTION -->
+        <!-- <div v-if="showReviews">
           <div v-if="reviews.length > 0">
             <div v-for="review in reviews" :key="review.id" class="review">
               <div class="review-header">
@@ -51,10 +52,10 @@
               <p>His service is awesome</p>
             </div>
           </div>
-          <p v-else>No reviews yet.</p>
+          <p v-else>No reviews yet.</p> -->
   
           <!-- Add Review Form -->
-          <div class="review-form">
+          <!-- <div class="review-form">
             <h4>Add Your Review</h4>
             <input type="text" v-model="newReview.name" placeholder="Your Name" />
             <input type="number" v-model="newReview.rating" min="1" max="5" placeholder="Rating (1-5)" />
@@ -62,7 +63,7 @@
             <button @click="submitReview">Submit Review</button>
           </div>
         </div>
-      </div>
+      </div> -->
   
       <!-- Map Section -->
       <div class="map-section">
@@ -73,8 +74,10 @@
   </template>
   
   <script setup>
-  import { ref, onMounted } from 'vue'
+  import { ref, onMounted, computed } from 'vue'
     import { useRouter, useRoute } from 'vue-router'
+    import { useUserProviderStore } from '@/stores/provideruser'
+    const providerUser = useUserProviderStore()
     const router = useRouter()
     const route = useRoute()
 
@@ -83,8 +86,53 @@
     const incomingInfo = ref({
       ProviderId: '',
       userLat : '',
-      userLon: ''
+      userLon: '',
+      distance: ''
     })
+
+    // OTHER DETAILS
+    const provider = ref({
+      firstname: '',
+      lastname: '',
+      serviceType: '',
+      phone: '',
+      address: '',
+      available: '',
+      profilePicture: '',
+      isVerified: '',
+      describe: '',
+      // Description : computed(() => {
+      //   truncateDesciption(provider.value.describe, 20)
+      // })
+    });
+
+    const Description = computed(() => { 
+  return truncateDesciption(provider.value.describe, 20) 
+})
+
+    // UPDATE USER DETAILS
+    const updateDetailsInfo = () => {
+      console.log(providerUser.userDetails)
+      provider.value.firstname = providerUser.userDetails.Firstname
+      provider.value.lastname = providerUser.userDetails.Lastname
+      provider.value.serviceType = providerUser.userDetails.ServiceType
+      provider.value.profilePicture = providerUser.userDetails.ProfilePicture
+      provider.value.phone = providerUser.userDetails.PhoneNumber
+      provider.value.available = providerUser.userDetails.Availability
+      provider.value.address = providerUser.userDetails.Address
+      provider.value.isVerified = providerUser.userDetails.isVerified
+      provider.value.describe = providerUser.userDetails.Description
+    }
+
+    // TRUNCATE THE ABOUT INFO
+    const truncateDesciption = (description, wordLimit = 20) => {
+      if(!description) return ""
+      const words = description.split(" ")
+      if(words.length > wordLimit){
+        return words.slice(0, wordLimit).join(" ") + "..."
+      }
+      return description
+    }
 
     // const startChat = () => {
     //   route.push(`/chats/${id}`);
@@ -92,22 +140,33 @@
     // const startChat = () => {
     //   router.push('/chats/123');
     // };
-    onMounted(() => {
-      // incomingInfo.value.ProviderId = route.params.id
-      // incomingInfo.value.userLat = route.query.lat
-      // incomingInfo.value.userLon = route.query.lng
 
-      const userId = incomingInfo.value.ProviderId
-      const userLat = incomingInfo.value.userLat
-      const userLon = incomingInfo.value.userLon
+    const callProvider = () => {
+      alert('calling')
+    }
 
-      console.log(userId)
-      console.log(userLat)
-      console.log(userLon)
+
+    // ONMOUNTED
+    onMounted(async () => {
+      incomingInfo.value.ProviderId = route.params.id
+      incomingInfo.value.userLat = route.query.lat
+      incomingInfo.value.userLon = route.query.lng
+      incomingInfo.value.distance = route.query.distance
+
+      const userRegId = route.params.id
+      const userLat = route.query.lat
+      const userLon = route.query.lng
+      const distance = route.query.distance
+
+      await providerUser.userDetailsFetch(userRegId)
+      updateDetailsInfo()
     })
   </script>
   
   <style scoped>
+  a{
+    text-decoration: none;
+  }
   .provider-details {
     padding: 20px;
     max-width: 600px;
