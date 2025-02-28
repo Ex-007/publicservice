@@ -8,7 +8,7 @@
 
 <script setup>
     import {ref, onMounted, watch} from 'vue'
-    import { useNuxtApp } from '#app';
+    // import { useNuxtApp } from '#app';
     import { useMapStore } from '@/stores/mapstory'
     const mapStore = useMapStore()
 
