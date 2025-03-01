@@ -39,7 +39,7 @@ export const useUserStore = defineStore('userauth', () => {
             // console.log('Address:', addressFetched.value);
         } catch (err) {
             error.value = err.message || 'An error occurred while reverse geocoding';
-            console.log(error.value, 'Please Ensure network connectivity');
+            // console.log(error.value, 'Please Ensure network connectivity');
         } finally {
             isLoading.value = false;
         }
@@ -90,9 +90,9 @@ export const useUserStore = defineStore('userauth', () => {
                 canProceed.value = true
                 // console.log('User ID : ', userId, email)
             }
-        } catch (error) {
-            error.value = error.message || 'An error occurred while registering user'
-            console.log(error.value)
+        } catch (err) {
+            error.value = err.message || 'An error occurred while registering user'
+            console.log(err.value)
         } finally {
             isLoading.value = false
         }
@@ -144,9 +144,9 @@ export const useUserStore = defineStore('userauth', () => {
                     canProceed.value = true
                 }, 1000);
             }
-        } catch (error) {
-            error.value = error.message || 'An error occurred while signing in'
-            console.log(error.message)
+        } catch (err) {
+            error.value = err.message || 'An error occurred while signing in'
+            console.log(err.message)
         } finally{
             isLoading.value = false
         }
@@ -164,7 +164,7 @@ export const useUserStore = defineStore('userauth', () => {
                 canProceed.value = true
             }, 1000);
 
-        } catch (error) {
+        } catch (err) {
             error.value = error.message
         }
     }

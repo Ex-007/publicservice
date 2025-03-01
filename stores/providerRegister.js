@@ -90,9 +90,9 @@ export const useProviderStore = defineStore('auth', () => {
                 canProceed.value = true
                 // console.log('User ID : ', userId, email)
             }
-        } catch (error) {
-            error.value = error.message || 'An error occurred while registering user'
-            console.log(error.value)
+        } catch (err) {
+            error.value = err.message || 'An error occurred while registering user'
+            console.log(err.value)
         } finally {
             isLoading.value = false
         }
@@ -124,6 +124,7 @@ export const useProviderStore = defineStore('auth', () => {
             })
             console.log('User added to database')
         } catch (err) {
+            error.value = err.message
             console.error('Error adding user to database:', err)
         } finally {
             isLoading.value = false
@@ -149,9 +150,9 @@ export const useProviderStore = defineStore('auth', () => {
                     canProceed.value = true
                 }, 1000);
             }
-        } catch (error) {
-            error.value = error.message || 'An error occurred while signing in'
-            console.log(error.message)
+        } catch (err) {
+            error.value = err.message || 'An error occurred while signing in'
+            console.log(err.message)
         } finally{
             isLoading.value = false
         }

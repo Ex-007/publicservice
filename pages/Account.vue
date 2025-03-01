@@ -39,6 +39,7 @@
 
             <input :type="passwordVisible ? 'text' : 'password'" placeholder="Password" v-model="registrationData.password">
             <p v-if="errors.password" class="error">{{ errors.password }}</p>
+            <p v-if="providerStore.error" class="erroring">{{ providerStore.error }}</p>
             <button @click.prevent="togglePasswordVisibility" type="button">{{ passwordVisible ? 'Hide' : 'Show' }} Password</button>
             <button @click="registerProviderBtn" :disabled="providerStore.isLoading">{{providerStore.isLoading ? 'Registering...' : "Register"}}</button>
 
@@ -53,6 +54,7 @@
         <div class="formDetails" v-show="showSignIn">
             <input type="email" placeholder="Email" v-model="loginDetails.email">
             <input :type="passwordVisible ? 'text' : 'password'" placeholder="Password" v-model="loginDetails.password">
+            <p v-if="providerStore.error" class="erroring">{{ providerStore.error }}</p>
             <button @click.prevent="togglePasswordVisibility" type="button">{{ passwordVisible ? 'Hide' : 'Show' }} Password</button>
             <button @click="loginProvider">{{ providerStore.isLoading ? 'Login in...' : 'Sign in' }}</button>
 
@@ -239,6 +241,10 @@
 </script>
 
 <style scoped>
+.erroring{
+        color: red;
+        text-align: center;
+    }
     span{
         text-decoration: underline;
         cursor: pointer;

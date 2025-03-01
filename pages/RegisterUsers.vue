@@ -13,6 +13,7 @@
                 <option>Female</option>
             </select> -->
             <input :type="passwordVisible ? 'text' : 'password'" placeholder="Password" v-model="userDetails.password">
+            <p v-if="userStore.error" class="erroring">{{ userStore.error }}</p>
             <button @click.prevent="togglePasswordVisibility" type="button">{{ passwordVisible ? 'Hide' : 'Show' }} Password</button>
             <!-- <input type="password" placeholder="Confirm Password"> -->
             <button @click="registerUser">Register</button>
@@ -28,6 +29,7 @@
         <div class="formDetails" v-show="showSignIn">
             <input type="email" placeholder="Email" v-model="signDetails.email">
             <input :type="passwordVisible ? 'text' : 'password'"  placeholder="Password" v-model="signDetails.password">
+            <p v-if="userStore.error" class="erroring">{{ userStore.error }}</p>
             <button @click.prevent="togglePasswordVisibility" type="button">{{ passwordVisible ? 'Hide' : 'Show' }} Password</button>
             <button @click="loginUser">{{ userStore.isLoading ? "Signing in..." : "Sign in" }}</button>
 
@@ -161,6 +163,10 @@
 </script>
 
 <style scoped>
+.erroring{
+        color: red;
+        text-align: center;
+    }
      span{
         text-decoration: underline;
         cursor: pointer;
