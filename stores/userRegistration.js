@@ -88,7 +88,7 @@ export const useUserStore = defineStore('userauth', () => {
                 
                 await addUSerToDatabase(userId, userDetails)
                 canProceed.value = true
-                console.log('User ID : ', userId, email)
+                // console.log('User ID : ', userId, email)
             }
         } catch (error) {
             error.value = error.message || 'An error occurred while registering user'

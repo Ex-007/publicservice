@@ -77,7 +77,7 @@
 </template>
 
 <script setup>
-    import { ref, watch } from 'vue'
+    import { ref, watch, onMounted } from 'vue'
     // The middleware for validating input fields
     import providerRegistration from '@/middleware/providerValidation';
     // The store for the provider
@@ -121,10 +121,12 @@
         phoneNumber: '',
         email: '',
         yearsOfExperience: '',
-        address: '',
+        address: providerStore.addressFetched,
         description: '',
         serviceType: '',
         password: '',
+        lat : ref(localStorage.getItem('latu') || null).value,
+        lng : ref(localStorage.getItem('lngu') || null).value,
     })
 
     const passwordVisible = ref(false)
@@ -226,7 +228,10 @@
 
 
 
-
+    onMounted(async () => {
+      await providerStore.getLocation()
+      
+  })
 
 
 

@@ -146,12 +146,14 @@
       providerLng : route.query.uselng
     }
 
-    // const startChat = () => {
-    //   route.push(`/chats/${id}`);
-    // };
-    // const startChat = () => {
-    //   router.push('/chats/123');
-    // };
+
+    // INITIATE THE CHAT
+    const startChat = () => {
+        const userId = route.query.userId
+        const providerId = route.query.providerId
+      router.push(`/chats/${userId}/${providerId}`);
+    };
+
 
     const callProvider = () => {
       alert('calling')
@@ -164,6 +166,8 @@
       incomingInfo.value.userLat = route.query.lat
       incomingInfo.value.userLon = route.query.lng
       incomingInfo.value.distance = route.query.distance
+
+
 
       const userRegId = route.params.id
       const userLat = route.query.lat

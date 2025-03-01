@@ -1,5 +1,4 @@
 import { defineStore } from 'pinia'
-import { useRouter } from 'vue-router'
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from 'firebase/auth'
 import {collection, getDocs, doc, getDoc, setDoc, updateDoc, deleteDoc, deleteField, query, where, orderBy} from 'firebase/firestore'
 
@@ -9,6 +8,7 @@ export const useProviderStore = defineStore('auth', () => {
     const isLoading = ref(false)
     const error = ref(null)
     const canProceed = ref(false)
+    const addressFetched = ref('')
 
     // WATCHING FOR AUTH CHANGES
     const checkAuth = async () => {
@@ -25,6 +25,51 @@ export const useProviderStore = defineStore('auth', () => {
             }
         })
     }
+
+    // REVERSE GEOCODING FUNCTION
+    const reverseGeocode = async (lat, lng) => {
+        // console.log(lat, lng);
+        isLoading.value = true;
+        error.value = null;
+        try {
+            const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`);
+            if (!response.ok) throw new Error('Failed to fetch address');
+            const data = await response.json();
+            addressFetched.value = data.display_name || 'Address not found';
+            // console.log('Address:', addressFetched.value);
+        } catch (err) {
+            error.value = err.message || 'An error occurred while reverse geocoding';
+            console.log(error.value, 'Please Ensure network connectivity');
+        } finally {
+            isLoading.value = false;
+        }
+    };
+
+    // PERMISSION FOR LOCATION ACCESS BEFORE REGISTERING
+    const getLocation = async () => {
+        isLoading.value = true;
+        error.value = null;
+        try {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        reverseGeocode(position.coords.latitude, position.coords.longitude);
+                        localStorage.setItem('latu', position.coords.latitude);
+                        localStorage.setItem('lngu', position.coords.longitude);
+                    },
+                    (err) => {
+                        error.value = err.message || 'An error occurred while fetching location';
+                        console.log(error.value);
+                    }
+                );
+            } else {
+                error.value = 'Geolocation is not supported by this browser.';
+                console.log(error.value);
+            }
+        } finally {
+            isLoading.value = false;
+        }
+    };
 
     // REGISTERING THE PROVIDER
     const registerProvider = async (registrationData) => {
@@ -43,7 +88,7 @@ export const useProviderStore = defineStore('auth', () => {
                 
                 await addUSerToDatabase(userId, registrationData)
                 canProceed.value = true
-                console.log('User ID : ', userId, email)
+                // console.log('User ID : ', userId, email)
             }
         } catch (error) {
             error.value = error.message || 'An error occurred while registering user'
@@ -69,12 +114,13 @@ export const useProviderStore = defineStore('auth', () => {
                 Address: registrationData.address,
                 ServiceType: registrationData.serviceType,
                 ProfilePicture: null,
-                lat: null,
-                lng: null,
+                lat: registrationData.lat,
+                lng: registrationData.lng,
                 Availability: 'active',
                 Description: registrationData.description,
                 isPremium: false,
                 isVerified: false,
+                identification: userId
             })
             console.log('User added to database')
         } catch (err) {
@@ -149,6 +195,8 @@ export const useProviderStore = defineStore('auth', () => {
         error,
         canProceed,
         registerProvider,
-        signinProviders
+        signinProviders,
+        addressFetched,
+        getLocation
     }
 })

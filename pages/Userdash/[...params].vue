@@ -46,7 +46,9 @@
                   lng: provider.providerLng,
                   distance: provider.distance,
                   uselat: userDetailss.lat,
-                  uselng: userDetailss.lng
+                  uselng: userDetailss.lng,
+                  userId: userDetailss.identity,
+                  providerId: provider.identity
                 }
               }" 
               class="provider-card">
