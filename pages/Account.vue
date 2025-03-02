@@ -117,6 +117,11 @@
     }
 
     // GRAB THE REGISTRATION FORM DETAILS
+
+    const lat = ref(localStorage.getItem('latu') || null);
+    const lng = ref(localStorage.getItem('lngu') || null);
+
+
     const registrationData = ref({
         firstName: '',
         lastName: '',
@@ -127,8 +132,8 @@
         description: '',
         serviceType: '',
         password: '',
-        lat : ref(localStorage.getItem('latu') || null).value,
-        lng : ref(localStorage.getItem('lngu') || null).value,
+        lat : lat.value,
+        lng : lng.value,
     })
 
     const passwordVisible = ref(false)
@@ -231,7 +236,7 @@
 
 
     onMounted(async () => {
-      await providerStore.getLocation()
+      await providerStore.getLocationProvider()
       
   })
 

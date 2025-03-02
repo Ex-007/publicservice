@@ -46,7 +46,7 @@ export const useProviderStore = defineStore('auth', () => {
     };
 
     // PERMISSION FOR LOCATION ACCESS BEFORE REGISTERING
-    const getLocation = async () => {
+    const getLocationProvider = async () => {
         isLoading.value = true;
         error.value = null;
         try {
@@ -54,8 +54,11 @@ export const useProviderStore = defineStore('auth', () => {
                 navigator.geolocation.getCurrentPosition(
                     (position) => {
                         reverseGeocode(position.coords.latitude, position.coords.longitude);
-                        localStorage.setItem('latu', position.coords.latitude);
-                        localStorage.setItem('lngu', position.coords.longitude);
+                        const latu = position.coords.latitude
+                        const logi = position.coords.logi
+                        localStorage.setItem('latu', latu);
+                        localStorage.setItem('lngu', logi);
+                        console.log(latu, logi)
                     },
                     (err) => {
                         error.value = err.message || 'An error occurred while fetching location';
@@ -198,6 +201,6 @@ export const useProviderStore = defineStore('auth', () => {
         registerProvider,
         signinProviders,
         addressFetched,
-        getLocation
+        getLocationProvider
     }
 })

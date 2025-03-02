@@ -32,13 +32,16 @@
         </ul>
       </div>
   
-     
+     <div class="loadingValue" v-if="usersDet.isLoading">
+      <h3>loading...</h3>
+     </div>
 
       <div v-if="usersDet.availableProviders" class="results">
         <h2>Available Providers: {{ usersDet.availableProviders }}</h2>
         <ul>
           <li v-for="(provider, index) in incoming" :key="index">
             <nuxt-link 
+              v-if="userDetailss.lat && userDetailss.lng"
               :to="{ 
                 path: `/providers/${provider.id}`,
                 query: {
@@ -150,9 +153,9 @@ const updateProfile = () => {
 const logSelectedOption = async () => {
   const latitudes = userDetailss.value.lat
   const longitudes = userDetailss.value.lng
-  console.log("Selected Option:", selectedOption.value);
+  console.log("Selected Option:", selectedOption.value, latitudes, longitudes);
   await usersDet.getProviderFromSearch(selectedOption.value, latitudes, longitudes)
-  logValue()
+  await logValue()
 };
 
 const incoming = ref([])
@@ -160,6 +163,7 @@ const incoming = ref([])
 // FETCH THE INCOMING VALUE
 const logValue = async () => {
   incoming.value = usersDet.providers
+  console.log("Providers loaded:", incoming.value);
 }
 
 
@@ -170,8 +174,9 @@ const logValue = async () => {
 onMounted(async () => {
   // console.log(userRegId)
       await usersDet.userDetailsFetch(userRegId)
-      updateProfile()
+      await updateProfile()
       
+      console.log("User details after mount:", userDetailss.value);
   })
 
 
@@ -344,7 +349,7 @@ onMounted(async () => {
     width: 100%;
     justify-content: space-between;
     cursor: pointer;
-    gap: 50px;
+    gap: 30px;
   }
 
   li{

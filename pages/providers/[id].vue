@@ -1,5 +1,7 @@
 <template>
-    <div class="provider-details">
+  <div>
+    <div class="provider-details" v-if="!providerUser.isLoading && provider.firstname">
+
       <!-- Provider Header -->
       <div class="provider-header">
         <img :src="provider.profilePicture || '/img/profilepicture.jpeg'" alt="Provider Image" class="profile-image" />
@@ -72,6 +74,13 @@
         <!-- <div class="map-placeholder">Map will be integrated here</div> -->
       </div>
     </div>
+    <div v-else-if="providerUser.isLoading" class="loading">
+             Loading provider details...
+  </div>
+  <div v-else class="error">
+    Failed to load provider details. {{ providerUser.error }}
+  </div>
+  </div>
   </template>
   
   <script setup>
@@ -104,9 +113,6 @@
       describe: '',
       lat: '',
       lng: '',
-      // Description : computed(() => {
-      //   truncateDesciption(provider.value.describe, 20)
-      // })
     });
 
     const Description = computed(() => { 
@@ -161,22 +167,52 @@
 
 
     // ONMOUNTED
+    // onMounted(async () => {
+    //   incomingInfo.value.ProviderId = route.params.id
+    //   incomingInfo.value.userLat = route.query.lat
+    //   incomingInfo.value.userLon = route.query.lng
+    //   incomingInfo.value.distance = route.query.distance
+
+
+
+    //   const userRegId = route.params.id
+    //   const userLat = route.query.lat
+    //   const userLon = route.query.lng
+    //   const distance = route.query.distance
+
+    //   console.log(userRegId, userLat, userLon, distance)
+
+    //   await providerUser.userDetailsFetch(userRegId)
+    //   await updateDetailsInfo()
+    // })
+
     onMounted(async () => {
-      incomingInfo.value.ProviderId = route.params.id
-      incomingInfo.value.userLat = route.query.lat
-      incomingInfo.value.userLon = route.query.lng
-      incomingInfo.value.distance = route.query.distance
+  try {
+    incomingInfo.value.ProviderId = route.params.id
+    incomingInfo.value.userLat = route.query.lat
+    incomingInfo.value.userLon = route.query.lng
+    incomingInfo.value.distance = route.query.distance
 
+    const userRegId = route.params.id
+    const userLat = route.query.lat
+    const userLon = route.query.lng
+    const distance = route.query.distance
 
+    console.log(userRegId, userLat, userLon, distance)
 
-      const userRegId = route.params.id
-      const userLat = route.query.lat
-      const userLon = route.query.lng
-      const distance = route.query.distance
-
-      await providerUser.userDetailsFetch(userRegId)
-      await updateDetailsInfo()
-    })
+    // Wait for the data to be fetched
+    await providerUser.userDetailsFetch(userRegId)
+    
+    // Now that we have the data, update the local state
+    if (providerUser.userDetails) {
+      updateDetailsInfo()
+    } else {
+      console.error("Provider details not found")
+    }
+  } catch (error) {
+    console.error("Error loading provider data:", error)
+  }
+})
   </script>
   
   <style scoped>

@@ -2,7 +2,8 @@ import { defineStore } from 'pinia'
 import {collection, getDocs, doc, getDoc, setDoc, updateDoc, deleteDoc, deleteField, query, where, orderBy} from 'firebase/firestore'
 
 export const useUserProviderStore = defineStore('details', () => {
-    const userDetails = ref(null)
+    // In your Pinia store
+const userDetails = ref(null) 
     const isLoading = ref(false)
     const error = ref(null)
 

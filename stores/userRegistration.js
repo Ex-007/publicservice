@@ -56,6 +56,8 @@ export const useUserStore = defineStore('userauth', () => {
                         reverseGeocode(position.coords.latitude, position.coords.longitude);
                         localStorage.setItem('lat', position.coords.latitude);
                         localStorage.setItem('lng', position.coords.longitude);
+
+                        console.log('Latitude:', position.coords.latitude, 'Longitude:', position.coords.longitude);
                     },
                     (err) => {
                         error.value = err.message || 'An error occurred while fetching location';

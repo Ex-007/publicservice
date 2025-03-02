@@ -86,13 +86,17 @@
     }
 
     // REGISTER USER DETAILS REFERENCE
+    const lat = ref(localStorage.getItem('lat') || null);
+    const lng = ref(localStorage.getItem('lng') || null);
+
+    // REGISTER USER DETAILS REFERENCE
     const userDetails = ref({
         fullName: '',
         phoneNumber: '',
         email: '',
         address: userStore.addressFetched,
-        lat : ref(localStorage.getItem('lat') || null).value,
-        lng : ref(localStorage.getItem('lng') || null).value,
+        lat : lat.value,
+        lng : lng.value,
         password: '',
     })
 
