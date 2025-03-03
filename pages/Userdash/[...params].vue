@@ -32,9 +32,10 @@
         </ul>
       </div>
   
-     <div class="loadingValue" v-if="usersDet.isLoading">
+     <!-- <div class="loadingValue" v-if="usersDet.isLoading">
       <h3>loading...</h3>
-     </div>
+     </div> -->
+     <div class="animatedLoad" v-if="usersDet.isLoading"></div>
 
       <div v-if="usersDet.availableProviders" class="results">
         <h2>Available Providers: {{ usersDet.availableProviders }}</h2>
@@ -176,13 +177,62 @@ onMounted(async () => {
       await usersDet.userDetailsFetch(userRegId)
       await updateProfile()
       
-      console.log("User details after mount:", userDetailss.value);
+      // console.log("User details after mount:", userDetailss.value);
   })
 
 
   </script>
   
   <style scoped>
+body{
+    background-color: black;
+    color: white;
+}
+
+.animatedLoad{
+    height: 80px;
+    width: 80px;
+    background-color: #007bff;
+    position: absolute;
+    margin: auto;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    border-radius: 50%;
+    box-shadow: 0 0 0 -7px #007bff,
+    0 0 0 -7px #007bff,
+    0 0 0 -15px #007bff,
+    0 0 0 -15px #007bff;
+    animation: split 1.5s forwards infinite;
+}
+
+@keyframes split{
+    25%{
+        box-shadow: 90px 0 0 -7px #007bff,
+                    -90px 0 0 -7px #007bff,
+                    90px 0 0 -15px #007bff,
+                    -90px 0 0 -15px #007bff;
+    }
+    50%{
+        box-shadow: 90px 0 0 -7px #ffffff,
+                    -90px 0 0 -7px #ffffff,
+                    180px 0 0 -15px #ffffff,
+                    -180px 0 0 -15px #ffffff;
+    }
+    75%{
+        box-shadow: 90px 0 0 -7px #007bff,
+                    -90px 0 0 -7px #007bff,
+                    90px 0 0 -15px #007bff,
+                    -90px 0 0 -15px #007bff;
+    }
+    100%{
+        box-shadow: 0px 0 0 -7px #ffffff,
+                    0px 0 0 -7px #ffffff,
+                    0px 0 0 -15px #ffffff,
+                    0px 0 0 -15px #ffffff;
+    }
+}
   .userInfoDiv{
     display: flex;
     align-items: center;

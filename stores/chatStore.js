@@ -1,10 +1,53 @@
 import { defineStore } from 'pinia'
 import { ref as dbRef, push, remove, onChildAdded, off } from 'firebase/database'
+import { onAuthStateChanged } from 'firebase/auth'
 
 export const useChatStore = defineStore('chat', () => {
     const messages = ref([])
     const activeChatId = ref(null)
-    const messageListeners = ref([]) // Track active listeners for cleanup
+    const messageListeners = ref([]) 
+    const error = ref(null)
+    const isLoading = ref(false)
+    const senderUid = ref(null)
+    const receiverUid = ref(null)
+    const chatId = ref(null)
+
+    // GET CURRENT LOGGED IN USER
+    const currentUserInfo = ref(null)
+
+        const getCurrentUser = async () => {
+            const { $auth } = useNuxtApp()
+            onAuthStateChanged($auth, (currentUser) => {
+                if (currentUser) {
+                    currentUserInfo.value = currentUser
+                    senderUid.value = currentUser.uid
+                    console.log('senderUid', senderUid.value)
+                    console.log(currentUser)
+                } else {
+                    currentUserInfo.value = null
+                    senderUid.value = null
+                    localStorage.removeItem('userIdd'); 
+                }
+            })
+        }
+    
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     // GENERATE CONSISTENT CHAT ID
     const getChatId = (userUid, providerUid) => {
@@ -40,20 +83,20 @@ export const useChatStore = defineStore('chat', () => {
     }
 
     // SEND A MESSAGE
-    const sendMessage = async(userUid, providerUid, text) => {
-        if(!text.trim()) return
+    const sendMessage = async(providerUid, newMessage) => {
+        if(!newMessage.trim()) return
 
         const { $realtimeDb } = useNuxtApp()
-        const chatPath = `chats/${getChatId(userUid, providerUid)}/messages`
+        const chatPath = `chats/${getChatId(senderUid.value, providerUid)}/messages`
         const messageData = {
-            senderUid: userUid,
-            text,
+            senderUid: senderUid.value,
+            newMessage,
             timestamp: Date.now()
         }
         await push(dbRef($realtimeDb, chatPath), messageData)
     }
 
-    // DELETE A MESSAGE
+    // DELETE A MESSAGe
     const deleteMessage = async(messageId, currentUserUid) => {
         const { $realtimeDb } = useNuxtApp()
         const chatPath = `chats/${activeChatId.value}/messages/${messageId}`
@@ -73,6 +116,7 @@ export const useChatStore = defineStore('chat', () => {
         fetchMessages,
         sendMessage,
         deleteMessage,
-        clearMessageListeners
+        clearMessageListeners,
+        getCurrentUser
     }
 })

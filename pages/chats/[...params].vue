@@ -3,37 +3,29 @@
     <!-- Chat Header -->
     <div class="chat-header">
       <button class="back-btn" @click="goBack">&#8592;</button>
-      <img src="/public/img/mechanic.jpeg" alt="Provider" class="profile-pic" />
+      <img src="/img/profilepicture.jpeg" alt="Provider" class="profile-pic" />
       <div class="provider-info">
-        <h3>{{ recipientName }}</h3>
+        <h3>John Doe</h3>
         <p class="status">Online</p>
       </div>
     </div>
 
     <!-- Chat Messages -->
-    <div class="chat-messages" ref="messagesContainer">
-      <div v-for="message in messages" :key="message.id" 
-           :class="['message', message.senderUid === userId ? 'sent' : 'received']">
-        <p>{{ message.text }}</p>
-        <div class="message-actions">
-          <button v-if="message.senderUid === userId" 
-                 class="delete-btn" @click="handleDelete(message.id)">
-            <span class="delete-icon">🗑️</span>
-          </button>
-          <span class="timestamp">{{ formatTime(message.timestamp) }}</span>
-        </div>
+    <div class="chat-messages">
+      <div class="message received">
+        <p>Hello! How can I help you today?</p>
+        <span class="timestamp">10:30 AM</span>
+      </div>
+      <div class="message sent">
+        <p>Hi, I need assistance with my plumbing issue.</p>
+        <span class="timestamp">10:32 AM</span>
       </div>
     </div>
 
     <!-- Chat Input -->
     <div class="chat-input">
-      <input 
-        type="text" 
-        v-model="newMessage" 
-        @keyup.enter="sendNewMessage" 
-        placeholder="Type a message..." 
-      />
-      <button class="send-btn" @click="sendNewMessage">&#9658;</button>
+      <input type="text" placeholder="Type a message..." v-model="newMessage"/>
+      <button class="send-btn" @click="sendMessage">&#9658;</button>
     </div>
   </div>
 </template>
@@ -49,19 +41,15 @@ const chatStore = useChatStore()
 
 // Get user ID and provider ID from route parameters
   const params = route.params.params || [];
-  const [userId, providerId] = params; 
+  const [userId, providerUid] = params; 
+  // console.log('provider uid', providerUid)
 
 // Reference to messages container for auto-scrolling
-const messagesContainer = ref(null)
+// const messagesContainer = ref(null)
 
-// Set placeholder recipient name (you can fetch the actual name from your database)
-const recipientName = ref(providerId || 'Provider')
 
 // New message input
 const newMessage = ref('')
-
-// Get messages from store
-const messages = computed(() => chatStore.messages)
 
 // Navigation
 const goBack = () => {
@@ -69,55 +57,37 @@ const goBack = () => {
   router.back()
 }
 
+// SEND MESSAGE
+const sendMessage = () => {
+  console.log(providerUid)
+  if(newMessage.value == ''){
+    alert('You cant sent an empty message')
+    return
+  }
+  chatStore.sendMessage(providerUid, newMessage.value)
+
+  newMessage.value = ''
+}
+
 // Initialize chat and fetch messages
 onMounted(async () => {
-  
-  // Fetch messages
-  chatStore.fetchMessages(userId, providerId)
-  
-  // Scroll to bottom initially when messages load
-  await nextTick()
-  scrollToBottom()
+
+  await chatStore.getCurrentUser()
 })
 
 // Clean up listeners when component is destroyed
-onUnmounted(() => {
-  chatStore.clearMessageListeners()
-})
+// onUnmounted(() => {
+//   chatStore.clearMessageListeners()
+// })
 
-// Watch for new messages to auto-scroll
-watch(() => chatStore.messages.length, () => {
-  nextTick(() => {
-    scrollToBottom()
-  })
-})
 
-// Format timestamp to readable time
-const formatTime = (timestamp) => {
-  const date = new Date(timestamp)
-  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-}
-
-// Send a new message
-const sendNewMessage = async () => {
-  if (newMessage.value.trim()) {
-    await chatStore.sendMessage(userId, providerId, newMessage.value)
-    newMessage.value = ''
-  }
-}
-
-// Handle message deletion
-const handleDelete = async (messageId) => {
-  await chatStore.deleteMessage(messageId, userId)
-}
-
-// Scroll to bottom of chat
-const scrollToBottom = () => {
-  if (messagesContainer.value) {
-    messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
-  }
-}
 </script>
+
+
+
+
+
+
 
 <style scoped>
 .chat-container {
@@ -188,49 +158,20 @@ const scrollToBottom = () => {
   align-self: flex-end;
 }
 
-.message-actions {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  margin-top: 5px;
-}
-
-.delete-btn {
-  background: none;
-  border: none;
-  color: rgba(255, 255, 255, 0.7);
-  cursor: pointer;
-  padding: 0;
-  margin-right: 5px;
-  font-size: 12px;
-}
-
-.received .delete-btn {
-  color: rgba(0, 0, 0, 0.5);
-}
-
-.delete-icon {
-  opacity: 0.7;
-}
-
-.delete-btn:hover .delete-icon {
-  opacity: 1;
-}
-
 .timestamp {
   font-size: 12px;
   color: gray;
+  display: block;
+  margin-top: 5px;
   text-align: right;
-}
-
-.sent .timestamp {
-  color: rgba(255, 255, 255, 0.7);
 }
 
 .chat-input {
   display: flex;
   padding: 10px;
   background: white;
+  position: fixed;
+  bottom: 0;
   width: 100%;
 }
 

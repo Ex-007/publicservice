@@ -1,16 +1,26 @@
 <template>
   <div>
-    <div class="provider-details" v-if="!providerUser.isLoading && provider.firstname">
-
+    <!-- Loading State -->
+    <div v-if="isLoading" class="loading">
+      Loading provider details...
+    </div>
+    
+    <!-- Error State -->
+    <div v-else-if="error" class="error">
+      Failed to load provider details. {{ error }}
+    </div>
+    
+    <!-- Data Loaded Successfully -->
+    <div v-else-if="dataLoaded" class="provider-details">
       <!-- Provider Header -->
       <div class="provider-header">
         <img :src="provider.profilePicture || '/img/profilepicture.jpeg'" alt="Provider Image" class="profile-image" />
         <h2 class="checkVeri">
           {{provider.firstname + ' ' + provider.lastname}}
-          <span class="verified" v-if="provider.isVerified == true">✔️ {{provider.isVerified}}</span>
+          <span class="verified" v-if="provider.isVerified === true">✔️ Verified</span>
           <span class="verified" v-else style="color: red;">❌ Not verified</span>
         </h2>
-        <p class="service-type"> {{ provider.serviceType }}</p>
+        <p class="service-type">{{ provider.serviceType }}</p>
         <p class="distance">📍 {{ incomingInfo.distance }} km away</p>
       </div>
   
@@ -22,7 +32,6 @@
         <h3>Service Details</h3>
         <p>⭐ Rating: 3/5</p>
         <p class="available">✅ {{ provider.available }}</p>
-        <!-- <p class="busy">❌ Busy</p> -->
   
         <h3>Contact</h3>
         <p><a :href="`tel:${provider.phone}`">📞 Call</a></p>
@@ -35,336 +44,295 @@
         </div>
       </div>
   
-      <!-- Collapsible Reviews Section -->
-      <!-- <div class="reviews-section">
-        <h3 @click="toggleReviews" class="reviews-header">
-          📢 Customer Reviews (9) 
-          <span v-if="showReviews">⬆️</span>
-          <span v-else>⬇️</span>
-        </h3> -->
-  
-        <!-- REVIEW SECTION -->
-        <!-- <div v-if="showReviews">
-          <div v-if="reviews.length > 0">
-            <div v-for="review in reviews" :key="review.id" class="review">
-              <div class="review-header">
-                <strong>Femi Akintade</strong>
-                <span class="stars">⭐ 4/5</span>
-              </div>
-              <p>His service is awesome</p>
-            </div>
-          </div>
-          <p v-else>No reviews yet.</p> -->
-  
-          <!-- Add Review Form -->
-          <!-- <div class="review-form">
-            <h4>Add Your Review</h4>
-            <input type="text" v-model="newReview.name" placeholder="Your Name" />
-            <input type="number" v-model="newReview.rating" min="1" max="5" placeholder="Rating (1-5)" />
-            <textarea v-model="newReview.comment" placeholder="Write a review"></textarea>
-            <button @click="submitReview">Submit Review</button>
-          </div>
-        </div>
-      </div> -->
-  
       <!-- Map Section -->
       <div class="map-section">
         <h3>📍 Location on Map</h3>
         <Map v-bind="mapDetails"/>
-        <!-- <div class="map-placeholder">Map will be integrated here</div> -->
       </div>
     </div>
-    <div v-else-if="providerUser.isLoading" class="loading">
-             Loading provider details...
   </div>
-  <div v-else class="error">
-    Failed to load provider details. {{ providerUser.error }}
-  </div>
-  </div>
-  </template>
+</template>
   
-  <script setup>
-  import { ref, onMounted, computed } from 'vue'
-    import { useRouter, useRoute } from 'vue-router'
-    import { useUserProviderStore } from '@/stores/provideruser'
-    const providerUser = useUserProviderStore()
-    const router = useRouter()
-    const route = useRoute()
+<script setup>
+import { ref, onMounted, computed, watchEffect, onBeforeUnmount  } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
+import { useUserProviderStore } from '@/stores/provideruser'
 
-    // const {id} = route.params;
+const providerUser = useUserProviderStore()
+const router = useRouter()
+const route = useRoute()
 
-    const incomingInfo = ref({
-      ProviderId: '',
-      userLat : '',
-      userLon: '',
-      distance: ''
-    })
+// Local state management
+const isLoading = ref(true)
+const error = ref(null)
+const dataLoaded = ref(false)
 
-    // OTHER DETAILS
-    const provider = ref({
-      firstname: '',
-      lastname: '',
-      serviceType: '',
-      phone: '',
-      address: '',
-      available: '',
-      profilePicture: '',
-      isVerified: '',
-      describe: '',
-      lat: '',
-      lng: '',
-    });
+const incomingInfo = ref({
+  ProviderId: '',
+  userLat: '',
+  userLon: '',
+  distance: ''
+})
 
-    const Description = computed(() => { 
+// Provider details
+const provider = ref({
+  firstname: '',
+  lastname: '',
+  serviceType: '',
+  phone: '',
+  address: '',
+  available: '',
+  profilePicture: '',
+  isVerified: false,
+  describe: '',
+  lat: '',
+  lng: '',
+})
+
+// Computed property for truncated description
+const Description = computed(() => { 
   return truncateDesciption(provider.value.describe, 20) 
 })
 
-    // UPDATE USER DETAILS
-    const updateDetailsInfo = () => {
-      console.log(providerUser.userDetails)
-      provider.value.firstname = providerUser.userDetails.Firstname
-      provider.value.lastname = providerUser.userDetails.Lastname
-      provider.value.serviceType = providerUser.userDetails.ServiceType
-      provider.value.profilePicture = providerUser.userDetails.ProfilePicture
-      provider.value.phone = providerUser.userDetails.PhoneNumber
-      provider.value.available = providerUser.userDetails.Availability
-      provider.value.address = providerUser.userDetails.Address
-      provider.value.isVerified = providerUser.userDetails.isVerified
-      provider.value.describe = providerUser.userDetails.Description
-      provider.value.lat = providerUser.userDetails.lat
-      provider.value.lng = providerUser.userDetails.lng
-    }
+// Map details
+const mapDetails = computed(() => ({
+  userLat: route.query.lat,
+  userLng: route.query.lng,
+  providerLat: provider.value.lat,
+  providerLng: provider.value.lng
+}))
 
-    // TRUNCATE THE ABOUT INFO
-    const truncateDesciption = (description, wordLimit = 20) => {
-      if(!description) return ""
-      const words = description.split(" ")
-      if(words.length > wordLimit){
-        return words.slice(0, wordLimit).join(" ") + "..."
-      }
-      return description
-    }
+// Function to update provider details from store
+const updateDetailsInfo = () => {
+  if (!providerUser.userDetails) return
+  
+  provider.value.firstname = providerUser.userDetails.Firstname || ''
+  provider.value.lastname = providerUser.userDetails.Lastname || ''
+  provider.value.serviceType = providerUser.userDetails.ServiceType || ''
+  provider.value.profilePicture = providerUser.userDetails.ProfilePicture || ''
+  provider.value.phone = providerUser.userDetails.PhoneNumber || ''
+  provider.value.available = providerUser.userDetails.Availability || ''
+  provider.value.address = providerUser.userDetails.Address || ''
+  provider.value.isVerified = providerUser.userDetails.isVerified || false
+  provider.value.describe = providerUser.userDetails.Description || ''
+  provider.value.lat = providerUser.userDetails.lat || ''
+  provider.value.lng = providerUser.userDetails.lng || ''
+  
+  dataLoaded.value = true
+}
 
-    const mapDetails = {
-      userLat : route.query.lat,
-      userLng : route.query.lng,
-      providerLat : route.query.uselat,
-      providerLng : route.query.uselng
-    }
+// Function to truncate description
+const truncateDesciption = (description, wordLimit = 20) => {
+  if (!description) return ""
+  const words = description.split(" ")
+  if (words.length > wordLimit) {
+    return words.slice(0, wordLimit).join(" ") + "..."
+  }
+  return description
+}
 
+// Navigation functions
+const startChat = () => {
+  const userId = route.query.userId
+  const providerId = route.params.id
+  router.push(`/chats/${userId}/${providerId}`)
+}
 
-    // INITIATE THE CHAT
-    const startChat = () => {
-        const userId = route.query.userId
-        const providerId = route.query.providerId
-      router.push(`/chats/${userId}/${providerId}`);
-    };
+const callProvider = () => {
+  window.location.href = `tel:${provider.value.phone}`
+}
 
+const bookService = () => {
+  // Implement booking logic here
+  alert('Booking service')
+}
 
-    const callProvider = () => {
-      alert('calling')
-    }
+// Watch for changes to provider details in the store
+watchEffect(() => {
+  if (providerUser.userDetails && Object.keys(providerUser.userDetails).length > 0) {
+    updateDetailsInfo()
+  }
+})
 
-
-    // ONMOUNTED
-    // onMounted(async () => {
-    //   incomingInfo.value.ProviderId = route.params.id
-    //   incomingInfo.value.userLat = route.query.lat
-    //   incomingInfo.value.userLon = route.query.lng
-    //   incomingInfo.value.distance = route.query.distance
-
-
-
-    //   const userRegId = route.params.id
-    //   const userLat = route.query.lat
-    //   const userLon = route.query.lng
-    //   const distance = route.query.distance
-
-    //   console.log(userRegId, userLat, userLon, distance)
-
-    //   await providerUser.userDetailsFetch(userRegId)
-    //   await updateDetailsInfo()
-    // })
-
-    onMounted(async () => {
+// let reloadTimer
+// Fetch provider details on component mount
+onMounted(async () => {
   try {
+    isLoading.value = true
+    error.value = null
+    
+    // Extract query parameters
     incomingInfo.value.ProviderId = route.params.id
     incomingInfo.value.userLat = route.query.lat
     incomingInfo.value.userLon = route.query.lng
     incomingInfo.value.distance = route.query.distance
-
+    
     const userRegId = route.params.id
-    const userLat = route.query.lat
-    const userLon = route.query.lng
-    const distance = route.query.distance
-
-    console.log(userRegId, userLat, userLon, distance)
-
-    // Wait for the data to be fetched
+    
+    console.log("Fetching provider details for:", userRegId)
+    
+    // Fetch provider details
     await providerUser.userDetailsFetch(userRegId)
     
-    // Now that we have the data, update the local state
-    if (providerUser.userDetails) {
-      updateDetailsInfo()
-    } else {
-      console.error("Provider details not found")
+    if (!providerUser.userDetails || Object.keys(providerUser.userDetails).length === 0) {
+      throw new Error("No provider data found")
     }
+    
+    // Update provider details
+    updateDetailsInfo()
+    
+    isLoading.value = false
   } catch (error) {
     console.error("Error loading provider data:", error)
+    isLoading.value = false
+    error.value = error.message || "Failed to load provider details"
   }
+  setTimeout(() => {
+        updateDetailsInfo()
+  }, 5000);
 })
-  </script>
+
+
+// onBeforeUnmount(() => {
+//   if (reloadTimer) {
+//     clearTimeout(reloadTimer)
+//   }
+// })
+
+</script>
   
-  <style scoped>
-  a{
-    text-decoration: none;
-  }
-  .provider-details {
-    padding: 20px;
-    max-width: 600px;
-    margin: auto;
-    text-align: center;
-  }
-  
-  .provider-header {
-    background: #007bff;
-    color: white;
-    padding: 20px;
-    border-radius: 10px;
-  }
-  
-  .profile-image {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    object-fit: cover;
-    margin-bottom: 10px;
+<style scoped>
+a {
+  text-decoration: none;
+}
+
+.loading, .error {
+  padding: 20px;
+  text-align: center;
+  font-size: 18px;
+  margin: 50px auto;
+  max-width: 600px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.error {
+  color: #dc3545;
+  background: #f8d7da;
+}
+
+.provider-details {
+  padding: 20px;
+  max-width: 600px;
+  margin: auto;
+  text-align: center;
+}
+
+.provider-header {
+  background: #007bff;
+  color: white;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.profile-image {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 10px;
+}
+
+.service-type {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.distance {
+  font-size: 14px;
+  color: #f1f1f1;
+}
+
+.verified {
+  color: #28a745;
+  font-size: 14px;
+  margin-left: 5px;
+  background-color: white;
+  padding: 10px;
+}
+
+.available {
+  color: #28a745;
+  font-weight: bold;
+}
+
+.busy {
+  color: #dc3545;
+  font-weight: bold;
+}
+
+.provider-info {
+  margin-top: 20px;
+  padding: 15px;
+  background: #f9f9f9;
+  border-radius: 10px;
+  text-align: left;
+}
+
+h3 {
+  margin-bottom: 5px;
+  color: #007bff;
+}
+
+.action-buttons {
+  margin-top: 20px;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+button {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.chat-btn {
+  background: #28a745;
+  color: white;
+}
+
+.call-btn {
+  background: #dc3545;
+  color: white;
+}
+
+.book-btn {
+  background: #ffc107;
+  color: black;
+}
+
+.map-section {
+  margin-top: 20px;
+  padding: 15px;
+  background: #e9ecef;
+  border-radius: 10px;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .checkVeri {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 5px 0;
   }
   
   .service-type {
-    font-size: 18px;
-    font-weight: bold;
-  }
-  
-  .distance {
-    font-size: 14px;
-    color: #f1f1f1;
-  }
-  
-  .verified {
-    color: #28a745;
-    font-size: 14px;
-    margin-left: 5px;
-    background-color: white;
-    padding: 10px;
-  }
-  
-  .available {
-    color: #28a745;
-    font-weight: bold;
-  }
-  
-  .busy {
-    color: #dc3545;
-    font-weight: bold;
-  }
-  
-  .provider-info {
-    margin-top: 20px;
-    padding: 15px;
-    background: #f9f9f9;
-    border-radius: 10px;
-    text-align: left;
-  }
-  
-  h3 {
-    margin-bottom: 5px;
-    color: #007bff;
-  }
-  
-  .action-buttons {
-    margin-top: 20px;
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-  }
-  
-  button {
-    padding: 10px 15px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-  }
-  
-  .chat-btn {
-    background: #28a745;
-    color: white;
-  }
-  
-  .call-btn {
-    background: #dc3545;
-    color: white;
-  }
-  
-  .book-btn {
-    background: #ffc107;
-    color: black;
-  }
-  
-  .reviews-section {
-    margin-top: 20px;
-    padding: 15px;
-    background: #fff3cd;
-    border-radius: 10px;
-    text-align: left;
-  }
-  
-  .reviews-header {
-    cursor: pointer;
-  }
-  
-  .review {
-    background: #ffffff;
-    padding: 10px;
-    margin-top: 10px;
-    border-radius: 5px;
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-  }
-  
-  .review-form {
-    margin-top: 15px;
-  }
-  
-  input, textarea {
-    width: 100%;
-    margin-bottom: 10px;
-    padding: 8px;
-  }
-  
-  .map-section {
-    margin-top: 20px;
-    padding: 15px;
-    background: #e9ecef;
-    border-radius: 10px;
-    text-align: center;
-  }
-  
-  .map-placeholder {
-    height: 200px;
-    background: #d6d6d6;
-  }
-
-  @media (max-width: 768px){
-    .checkVeri{
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        margin: 5px 0;
-    }
-    .service-type {
     font-size: 22px;
     font-weight: bold;
   }
-  }
-  </style>
-  
+}
+</style>
