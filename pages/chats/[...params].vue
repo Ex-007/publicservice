@@ -57,7 +57,8 @@ const goBack = () => {
   router.back()
 }
 
-// SEND MESSAGE
+// SEND MESSAGE 
+// WORKING
 const sendMessage = () => {
   console.log(providerUid)
   if(newMessage.value == ''){
@@ -69,10 +70,21 @@ const sendMessage = () => {
   newMessage.value = ''
 }
 
+// FETCHING MESSAGES
+const fetchMessages = async () => {
+  await chatStore.fetchMessages(providerUid)
+
+  console.log('messages', chatStore.messages)
+  // Scroll to bottom of messages container
+  // nextTick(() => {
+  //   messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
+  // })
+}
+
 // Initialize chat and fetch messages
 onMounted(async () => {
-
   await chatStore.getCurrentUser()
+  await fetchMessages()
 })
 
 // Clean up listeners when component is destroyed
