@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref as vueRef } from 'vue'
 import { ref as dbRef, push, remove, onChildAdded, onValue, off } from 'firebase/database'
+import { doc, getDoc} from 'firebase/firestore'
 import { onAuthStateChanged } from 'firebase/auth'
 import { useNuxtApp } from '#app'
 
@@ -13,6 +14,7 @@ export const useChatStore = defineStore('chat', () => {
     const senderUid = vueRef(null)
     const receiverUid = vueRef(null)
     const currentUser = vueRef(null)
+    const userDetails = vueRef(null)
 
     // GET CURRENT LOGGED IN USER
     const getCurrentUser = async () => {
@@ -34,7 +36,7 @@ export const useChatStore = defineStore('chat', () => {
                     currentUser.value = null
                     senderUid.value = null
                 }
-                unsubscribe() // Clean up the listener
+                unsubscribe() 
                 resolve(currentUser.value)
             })
         })
@@ -187,7 +189,32 @@ export const useChatStore = defineStore('chat', () => {
         }
     }
 
+    // FETCH RECEIVER'S DETAILS
+    const receiverDet = async (providerUid) => {
+        console.log(providerUid)
+        isLoading.value = true
+        error.value = null
+
+        try {
+            const { $db } = useNuxtApp()
+            const docRef = doc($db, 'REGISTERED_PROVIDERS', providerUid)
+            const docSnap = await getDoc(docRef);
+            if(docSnap.exists()){
+                userDetails.value = docSnap.data()
+                console.log(docSnap.data())
+            }else{
+                error.value = 'Provider not found'
+            }
+        } catch (err) {
+            error.value = err.message || 'An error occrured while fetching data'
+        } finally {
+            isLoading.value = false
+        }
+    }
+
     return {
+        receiverDet,
+        userDetails,
         messages,
         activeChatId,
         error,

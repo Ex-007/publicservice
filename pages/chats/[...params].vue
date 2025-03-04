@@ -3,10 +3,10 @@
     <!-- Chat Header -->
     <div class="chat-header">
       <button class="back-btn" @click="goBack">&#8592;</button>
-      <img src="/img/profilepicture.jpeg" alt="Provider" class="profile-pic" />
+      <img :src="providerDetails.profilePicture || '/img/profilepicture.jpeg'" alt="Provider" class="profile-pic" />
       <div class="provider-info">
-        <h3>John Doe</h3>
-        <p class="status">Online</p>
+        <h3>{{ providerDetails.firstname + " " + providerDetails.lastname }}</h3>
+        <p class="status">{{ providerDetails.phoneNumber }}</p>
       </div>
     </div>
 
@@ -60,6 +60,23 @@ const goBack = () => {
   router.back()
 }
 
+const providerDetails = ref({
+  firstname: '',
+  lastname: '',
+  profilePicture: '',
+  phoneNumber: ''
+})
+
+// UPDATE PROVIDER DETAILS
+const updateProviderDet = () => {
+  console.log(chatStore.userDetails)
+  providerDetails.value.firstname = chatStore.userDetails.Firstname
+  providerDetails.value.lastname = chatStore.userDetails.Lastname
+  providerDetails.value.profilePicture = chatStore.userDetails.ProfilePicture
+  providerDetails.value.phoneNumber = chatStore.userDetails.PhoneNumber
+}
+
+
 // Check if message is from current user
 const isCurrentUserMessage = (message) => {
   return message.senderUid === chatStore.currentUser?.uid;
@@ -105,6 +122,8 @@ const fetchMessages = async () => {
 // Initialize chat and fetch messages
 onMounted(async () => {
   await chatStore.getCurrentUser()
+  await chatStore.receiverDet(providerUid)
+  await updateProviderDet()
   await fetchMessages()
 })
 
