@@ -11,27 +11,32 @@
     </div>
 
     <!-- Chat Messages -->
-    <div class="chat-messages">
-      <div class="message received">
-        <p>Hello! How can I help you today?</p>
-        <span class="timestamp">10:30 AM</span>
-      </div>
-      <div class="message sent">
-        <p>Hi, I need assistance with my plumbing issue.</p>
-        <span class="timestamp">10:32 AM</span>
+    <div class="chat-messages" ref="messagesContainer">
+      <div 
+        v-for="message in chatStore.messages" 
+        :key="message.id" 
+        :class="['message', isCurrentUserMessage(message) ? 'sent' : 'received']"
+      >
+        <p>{{ message.text || message.newMessage || message.neuMessage }}</p>
+        <span class="timestamp">{{ formatTimestamp(message.timestamp) }}</span>
       </div>
     </div>
 
     <!-- Chat Input -->
     <div class="chat-input">
-      <input type="text" placeholder="Type a message..." v-model="newMessage"/>
+      <input 
+        type="text" 
+        placeholder="Type a message..." 
+        v-model="newMessage"
+        @keyup.enter="sendMessage"
+      />
       <button class="send-btn" @click="sendMessage">&#9658;</button>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, watch, nextTick, computed } from 'vue'
+import { ref, onMounted, onUnmounted, nextTick, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useChatStore } from '@/stores/chatStore'
 
@@ -40,13 +45,11 @@ const route = useRoute()
 const chatStore = useChatStore()
 
 // Get user ID and provider ID from route parameters
-  const params = route.params.params || [];
-  const [userId, providerUid] = params; 
-  // console.log('provider uid', providerUid)
+const params = route.params.params || [];
+const [userId, providerUid] = params; 
 
 // Reference to messages container for auto-scrolling
-// const messagesContainer = ref(null)
-
+const messagesContainer = ref(null)
 
 // New message input
 const newMessage = ref('')
@@ -57,28 +60,46 @@ const goBack = () => {
   router.back()
 }
 
-// SEND MESSAGE 
-// WORKING
+// Check if message is from current user
+const isCurrentUserMessage = (message) => {
+  return message.senderUid === chatStore.currentUser?.uid;
+}
+
+// Format timestamp to readable time
+const formatTimestamp = (timestamp) => {
+  if (!timestamp) return '';
+  
+  const date = new Date(timestamp);
+  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
+// SEND MESSAGE
 const sendMessage = () => {
-  console.log(providerUid)
-  if(newMessage.value == ''){
-    alert('You cant sent an empty message')
+  if(newMessage.value.trim() === ''){
+    alert('You can\'t send an empty message')
     return
   }
+  
   chatStore.sendMessage(providerUid, newMessage.value)
-
   newMessage.value = ''
+  
+  // Scroll to bottom after sending
+  scrollToBottom()
+}
+
+// Scroll to bottom of messages
+const scrollToBottom = () => {
+  nextTick(() => {
+    if (messagesContainer.value) {
+      messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
+    }
+  })
 }
 
 // FETCHING MESSAGES
 const fetchMessages = async () => {
   await chatStore.fetchMessages(providerUid)
-
-  console.log('messages', chatStore.messages)
-  // Scroll to bottom of messages container
-  // nextTick(() => {
-  //   messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
-  // })
+  scrollToBottom()
 }
 
 // Initialize chat and fetch messages
@@ -88,18 +109,10 @@ onMounted(async () => {
 })
 
 // Clean up listeners when component is destroyed
-// onUnmounted(() => {
-//   chatStore.clearMessageListeners()
-// })
-
-
+onUnmounted(() => {
+  chatStore.clearMessageListeners()
+})
 </script>
-
-
-
-
-
-
 
 <style scoped>
 .chat-container {
@@ -149,6 +162,7 @@ onMounted(async () => {
   overflow-y: auto;
   display: flex;
   flex-direction: column;
+  margin-bottom: 60px; /* Space for the input at bottom */
 }
 
 .message {
@@ -178,6 +192,10 @@ onMounted(async () => {
   text-align: right;
 }
 
+.sent .timestamp {
+  color: #e0e0e0;
+}
+
 .chat-input {
   display: flex;
   padding: 10px;
@@ -185,6 +203,7 @@ onMounted(async () => {
   position: fixed;
   bottom: 0;
   width: 100%;
+  box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
 }
 
 .chat-input input {

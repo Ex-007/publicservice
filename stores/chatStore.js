@@ -1,32 +1,42 @@
 import { defineStore } from 'pinia'
-import { ref as dbRef, push, remove, onChildAdded, off } from 'firebase/database'
+import { ref as vueRef } from 'vue'
+import { ref as dbRef, push, remove, onChildAdded, onValue, off } from 'firebase/database'
 import { onAuthStateChanged } from 'firebase/auth'
+import { useNuxtApp } from '#app'
 
 export const useChatStore = defineStore('chat', () => {
-    const messages = ref([])
-    const activeChatId = ref(null)
-    const messageListeners = ref([]) 
-    const error = ref(null)
-    const isLoading = ref(false)
-    const senderUid = ref(null)
-    const receiverUid = ref(null)
-    const chatId = ref(null)
+    const messages = vueRef([])
+    const activeChatId = vueRef(null)
+    const messageListeners = vueRef([]) 
+    const error = vueRef(null)
+    const isLoading = vueRef(false)
+    const senderUid = vueRef(null)
+    const receiverUid = vueRef(null)
+    const currentUser = vueRef(null)
 
     // GET CURRENT LOGGED IN USER
-    const currentUserInfo = ref(null)
-
     const getCurrentUser = async () => {
         const { $auth } = useNuxtApp()
-        onAuthStateChanged($auth, (currentUser) => {
-            if (currentUser) {
-                currentUserInfo.value = currentUser
-                senderUid.value = currentUser.uid
-                console.log('senderUid', senderUid.value)
-                console.log(currentUser)
-            } else {
-                currentUserInfo.value = null
-                senderUid.value = null
+        return new Promise((resolve) => {
+            // First check if we already have the user
+            if (senderUid.value) {
+                resolve(currentUser.value)
+                return
             }
+            
+            // Otherwise set up the listener
+            const unsubscribe = onAuthStateChanged($auth, (user) => {
+                if (user) {
+                    currentUser.value = user
+                    senderUid.value = user.uid
+                    console.log('Current user UID:', senderUid.value)
+                } else {
+                    currentUser.value = null
+                    senderUid.value = null
+                }
+                unsubscribe() // Clean up the listener
+                resolve(currentUser.value)
+            })
         })
     }
 
@@ -36,40 +46,73 @@ export const useChatStore = defineStore('chat', () => {
     }
 
     // FETCHING MESSAGES IN REAL TIME
-    const fetchMessages = (providerUid) => {
-        // Ensure we have a sender UID before proceeding
+    const fetchMessages = async (providerUid) => {
+        // Wait for the current user if not already set
         if (!senderUid.value) {
-            console.error('User not authenticated')
-            error.value = 'User not authenticated'
-            return
+            await getCurrentUser()
+            if (!senderUid.value) {
+                console.error('User not authenticated')
+                error.value = 'User not authenticated'
+                return
+            }
         }
-        
+
         // Clean up existing listeners first
         clearMessageListeners()
-        
+
         const { $realtimeDb } = useNuxtApp()
         activeChatId.value = getChatId(senderUid.value, providerUid)
         receiverUid.value = providerUid
         messages.value = [] // Clear existing messages
         isLoading.value = true
-        
+
         try {
             const chatPath = `chats/${activeChatId.value}/messages`
             const chatRef = dbRef($realtimeDb, chatPath)
-            
-            // Store reference to detach later
-            const listener = onChildAdded(chatRef, (snapshot) => {
-                const messageData = snapshot.val()
-                messages.value.push({
-                    id: snapshot.key,
-                    ...messageData
-                })
+
+            // Get initial snapshot of all messages
+            const initialListener = onValue(chatRef, (snapshot) => {
+                if (snapshot.exists()) {
+                    const messagesData = snapshot.val()
+                    const messageArray = []
+                    
+                    // Convert object to array
+                    Object.keys(messagesData).forEach(key => {
+                        messageArray.push({
+                            id: key,
+                            ...messagesData[key]
+                        })
+                    })
+                    
+                    // Sort by timestamp
+                    messageArray.sort((a, b) => a.timestamp - b.timestamp)
+                    messages.value = messageArray
+                }
+                // Remove this listener after initial load
+                off(chatRef, 'value', initialListener)
             }, (err) => {
-                console.error('Error fetching messages:', err)
+                console.error('Error fetching initial messages:', err)
                 error.value = err.message
             })
-            
-            messageListeners.value.push({ ref: chatRef, listener })
+
+            // Add listener for new messages
+            const newMessageListener = onChildAdded(chatRef, (snapshot) => {
+                const messageData = snapshot.val()
+                const newMessage = {
+                    id: snapshot.key,
+                    ...messageData
+                }
+                
+                // Only add if not already in the array
+                if (!messages.value.some(msg => msg.id === newMessage.id)) {
+                    messages.value.push(newMessage)
+                }
+            }, (err) => {
+                console.error('Error fetching new messages:', err)
+                error.value = err.message
+            })
+
+            messageListeners.value.push({ ref: chatRef, listener: newMessageListener })
         } catch (err) {
             console.error('Error setting up message listener:', err)
             error.value = err.message
@@ -97,18 +140,18 @@ export const useChatStore = defineStore('chat', () => {
 
         isLoading.value = true
         error.value = null
-        
+
         try {
             const { $realtimeDb } = useNuxtApp()
             const chatId = getChatId(senderUid.value, providerUid)
             const chatPath = `chats/${chatId}/messages`
-            
+
             const messageData = {
                 senderUid: senderUid.value,
-                text: messageText, // Using 'text' as the message content field
+                text: messageText,
                 timestamp: Date.now()
             }
-            
+
             await push(dbRef($realtimeDb, chatPath), messageData)
         } catch (err) {
             console.error('Error sending message:', err)
@@ -129,7 +172,7 @@ export const useChatStore = defineStore('chat', () => {
         const { $realtimeDb } = useNuxtApp()
         const chatPath = `chats/${activeChatId.value}/messages/${messageId}`
         const message = messages.value.find(msg => msg.id === messageId)
-        
+
         if (message?.senderUid === senderUid.value) {
             try {
                 await remove(dbRef($realtimeDb, chatPath))
@@ -143,7 +186,7 @@ export const useChatStore = defineStore('chat', () => {
             error.value = 'Cannot delete message: not the sender'
         }
     }
-    
+
     return {
         messages,
         activeChatId,
@@ -151,6 +194,7 @@ export const useChatStore = defineStore('chat', () => {
         isLoading,
         senderUid,
         receiverUid,
+        currentUser,
         fetchMessages,
         sendMessage,
         deleteMessage,
