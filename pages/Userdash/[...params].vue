@@ -35,7 +35,7 @@
      <!-- <div class="loadingValue" v-if="usersDet.isLoading">
       <h3>loading...</h3>
      </div> -->
-     <!-- <div class="animatedLoad" v-if="usersDet.isLoading"></div> -->
+     <div class="animatedLoad" v-if="usersDet.isLoading"></div>
 
       <div v-if="usersDet.availableProviders" class="results">
         <h2>Available Providers: {{ usersDet.availableProviders }}</h2>
@@ -185,7 +185,7 @@ const updateProfile = () => {
 const logSelectedOption = async () => {
   const latitudes = userDetailss.value.lat
   const longitudes = userDetailss.value.lng
-  console.log("Selected Option:", selectedOption.value, latitudes, longitudes);
+  // console.log("Selected Option:", selectedOption.value, latitudes, longitudes);
   await usersDet.getProviderFromSearch(selectedOption.value, latitudes, longitudes)
   await logValue()
 };
@@ -205,6 +205,8 @@ const logValue = async () => {
 
 onMounted(async () => {
   // console.log(userRegId)
+      // await usersDet.getLocation()
+      // await usersDet.updateLocale(userRegId)
       await usersDet.userDetailsFetch(userRegId)
       await usersDet.fetchChats(userRegId)
       await updateProfile()

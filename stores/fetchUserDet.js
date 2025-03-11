@@ -32,7 +32,25 @@ export const useUsersStore = defineStore('details', () => {
         }
     }
     
-    // UPDATING PROVIDER DETAILS
+
+// CALCULATING THE DISTANCE BETWEEN TWO POINTS
+    const calculateDistance = (lat1, lon1, lat2, lon2) => {
+        console.log(lat1, lon1, lat2, lon2)
+        const R = 6371; 
+        const deg2rad = (deg) => deg * (Math.PI / 180);
+        const dLat = deg2rad(lat2 - lat1);  
+        const dLon = deg2rad(lon2 - lon1);
+        const a =
+            Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
+            Math.sin(dLon / 2) * Math.sin(dLon / 2)
+            ;
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        const d = R * c;
+        return d;
+    };
+
+    // GETTING PROVIDER FROM STORE
     const getProviderFromSearch = async (serviceType, lat, lng) => {
         // console.log(serviceType, lat, lng);
         isLoading.value = true;
@@ -72,20 +90,21 @@ export const useUsersStore = defineStore('details', () => {
     
             // Prioritize providers within 2km, otherwise take 4km ones
             providers.value = within2km.length > 0 ? within2km : within4km;
-            // console.log(providers);
+            console.log(providers);
         } catch (err) {
             error.value = err.message || "An error occurred while fetching data";
-            // console.log(error.value);
+            console.log(error.value);
         } finally {
             isLoading.value = false;
         }
     };
     
     // FUNCTION TO LIST OUT ALL THE CHATS
+
     const fetchChats = async (userRegId) => {
         isLoading.value = true
         error.value = null
-        // console.log('Fetching...', userRegId)
+        console.log('Fetching...', userRegId)
     
         try {
             const { $db } = useNuxtApp()
@@ -106,7 +125,7 @@ export const useUsersStore = defineStore('details', () => {
                 })
             })
             chatList.value = chats
-            // console.log(chats)
+            console.lzog(chats)
             
             return chats
         } catch (err) {
@@ -117,14 +136,6 @@ export const useUsersStore = defineStore('details', () => {
             isLoading.value = false
         }
     }
-
-
-
-
-
-
-
-
 
 
 
