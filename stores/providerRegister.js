@@ -55,7 +55,7 @@ export const useProviderStore = defineStore('auth', () => {
                     (position) => {
                         reverseGeocode(position.coords.latitude, position.coords.longitude);
                         const latu = position.coords.latitude
-                        const logi = position.coords.logi
+                        const logi = position.coords.longitude
                         localStorage.setItem('latu', latu);
                         localStorage.setItem('lngu', logi);
                         console.log(latu, logi)

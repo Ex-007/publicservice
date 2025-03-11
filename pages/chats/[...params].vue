@@ -64,7 +64,8 @@ const providerDetails = ref({
   firstname: '',
   lastname: '',
   profilePicture: '',
-  phoneNumber: ''
+  phoneNumber: '',
+  serviceType: ''
 })
 
 // UPDATE PROVIDER DETAILS
@@ -74,6 +75,7 @@ const updateProviderDet = () => {
   providerDetails.value.lastname = chatStore.userDetails.Lastname
   providerDetails.value.profilePicture = chatStore.userDetails.ProfilePicture
   providerDetails.value.phoneNumber = chatStore.userDetails.PhoneNumber
+  providerDetails.value.serviceType = chatStore.userDetails.ServiceType
 }
 
 
@@ -120,11 +122,45 @@ const fetchMessages = async () => {
 }
 
 // Initialize chat and fetch messages
+// onMounted(async () => {
+//   await chatStore.getCurrentUser()
+//   await chatStore.receiverDet(providerUid)
+//   await updateProviderDet()
+//   await chatStore.userDet()
+//   await chatStore.saveToSubCollection(providerUid, providerDetails.value)
+//   await fetchMessages()
+// })
+
 onMounted(async () => {
-  await chatStore.getCurrentUser()
-  await chatStore.receiverDet(providerUid)
-  await updateProviderDet()
-  await fetchMessages()
+  try {
+    console.log('Component mounted, starting initialization...')
+    
+    await chatStore.getCurrentUser()
+    console.log('Current user loaded')
+    
+    await chatStore.receiverDet(providerUid)
+    console.log('Receiver details loaded')
+    
+    await updateProviderDet()
+    console.log('Provider details updated')
+    
+    await chatStore.userDet()
+    console.log('User details loaded')
+    
+    // Check if we have the required data before proceeding
+    if (!providerUid || !providerDetails.value) {
+      console.error('Missing provider data:', { providerUid, providerDetails: providerDetails.value })
+      return
+    }
+    
+    const result = await chatStore.saveToSubCollection(providerUid, providerDetails.value)
+    console.log('Save to subcollection result:', result)
+    
+    await fetchMessages()
+    console.log('Messages fetched')
+  } catch (error) {
+    console.error('Error during component initialization:', error)
+  }
 })
 
 // Clean up listeners when component is destroyed

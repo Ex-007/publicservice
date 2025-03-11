@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref as vueRef } from 'vue'
 import { ref as dbRef, push, remove, onChildAdded, onValue, off } from 'firebase/database'
-import { doc, getDoc} from 'firebase/firestore'
+import { doc, getDoc, collection, query, where, getDocs, addDoc} from 'firebase/firestore'
 import { onAuthStateChanged } from 'firebase/auth'
 import { useNuxtApp } from '#app'
 
@@ -12,6 +12,7 @@ export const useChatStore = defineStore('chat', () => {
     const error = vueRef(null)
     const isLoading = vueRef(false)
     const senderUid = vueRef(null)
+    const senderDet = vueRef(null)
     const receiverUid = vueRef(null)
     const currentUser = vueRef(null)
     const userDetails = vueRef(null)
@@ -41,6 +42,126 @@ export const useChatStore = defineStore('chat', () => {
             })
         })
     }
+
+    // CHECK IF USER OR PROVIDER'S USERID EXISTS IN EACH DATABASE
+    // const saveToSubCollection = async (providerUid, providerDetails) => {
+    //     isLoading.value = true
+    //     error.value = null
+    //     try {
+    //         const { $db } = useNuxtApp()
+    //         const userChatRef = collection($db, 'REGISTERED_USERS', senderUid.value, 'CHATS')
+    //         const providerChatRef = collection($db, 'REGISTERED_PROVIDERS', providerUid, 'CHATS')
+            
+    //         const userQuery = query(userChatRef, where('providerUid', '==', providerUid))
+    //         const userSnapshot = await getDocs(userQuery)
+    //         if(userSnapshot.empty){
+    //             await addDoc(userChatRef, {
+    //                 providerUid: providerUid,
+    //                 serviceType: providerDetails.serviceType,
+    //                 Firstname: providerDetails.firstname,
+    //                 Lastname: providerDetails.lastname,
+    //                 providerImage: providerDetails.profilepicture
+    //             })
+    //             console.log('user added')
+    //         }else{
+    //             console.log('Provider already exists in chat')
+    //         }
+
+    //         const providerQuery = query(providerChatRef, where('userUid', '==', senderUid.value))
+    //         const providerSnapshot = await getDocs(providerQuery)
+    //         if(providerSnapshot.empty){
+    //             await addDoc(providerChatRef, {
+    //                 userUid: senderUid.value,
+    //                 Fullname: senderDet.Fullname,
+    //                 userImage: senderDet.ProfilePicture
+    //             })
+    //             console.log('provider added')
+    //         }
+    //         else{
+    //             console.log('User already exists in chat')
+    //         }
+    //     } catch (err) {
+    //         error.value = err.message || 'An error occrured while fetching data'
+    //     }
+    // }
+
+
+    // In your store
+const saveToSubCollection = async (providerUid, providerDetails) => {
+    isLoading.value = true
+    error.value = null
+    console.log('Starting saveToSubCollection with:', { providerUid, senderUid: senderUid.value })
+    
+    try {
+        const { $db } = useNuxtApp()
+        
+        // Validate required data
+        if (!senderUid.value || !providerUid) {
+            console.error('Missing UIDs:', { senderUid: senderUid.value, providerUid })
+            error.value = 'Missing user or provider ID'
+            isLoading.value = false
+            return false
+        }
+        
+        const userChatRef = collection($db, 'REGISTERED_USERS', senderUid.value, 'CHATS')
+        const providerChatRef = collection($db, 'REGISTERED_PROVIDERS', providerUid, 'CHATS')
+        
+        // CHECKING IF THE DETAILS EXIST FOR USERS
+        const userQuery = query(userChatRef, where('providerUid', '==', providerUid))
+        const userSnapshot = await getDocs(userQuery)
+        
+        if (userSnapshot.empty) {
+            console.log('User document does not exist, creating...')
+            await addDoc(userChatRef, {
+                providerUid: providerUid,
+                serviceType: providerDetails.serviceType,
+                Firstname: providerDetails.firstname,
+                Lastname: providerDetails.lastname,
+                providerImage: providerDetails.profilePicture,
+                createdAt: new Date() // Adding timestamp for debugging
+            })
+            console.log('User document added successfully')
+        } else {
+            console.log('Provider already exists in user chat:', userSnapshot.docs.length, 'docs')
+        }
+
+        // CHECKING FOR PROVIDERS
+        const providerQuery = query(providerChatRef, where('userUid', '==', senderUid.value))
+        const providerSnapshot = await getDocs(providerQuery)
+        
+        if (providerSnapshot.empty) {
+            console.log('Provider document does not exist, creating...')
+            
+            // Check if senderDet is defined
+            if (!senderDet || !senderDet.Fullname) {
+                console.error('Missing senderDet data:', senderDet)
+                error.value = 'Missing sender details'
+                isLoading.value = false
+                return false
+            }
+            
+            await addDoc(providerChatRef, {
+                userUid: senderUid.value,
+                Fullname: senderDet.Fullname,
+                userImage: senderDet.ProfilePicture,
+                createdAt: new Date() 
+            })
+            console.log('Provider document added successfully')
+        } else {
+            console.log('User already exists in provider chat:', providerSnapshot.docs.length, 'docs')
+        }
+        
+        isLoading.value = false
+        return true
+    } catch (err) {
+        console.error('Error in saveToSubCollection:', err)
+        error.value = err.message || 'An error occurred while saving chat data'
+        isLoading.value = false
+        return false
+    } finally {
+        isLoading.value = false
+    }
+}
 
     // GENERATE CONSISTENT CHAT ID
     const getChatId = (userUid, providerUid) => {
@@ -212,6 +333,30 @@ export const useChatStore = defineStore('chat', () => {
         }
     }
 
+    // FETCH USER'S DETAILS
+    const userDet = async () => {
+        isLoading.value = true
+        error.value = null
+
+        try {
+            const { $db } = useNuxtApp()
+            const senderRef = doc($db, 'REGISTERED_USERS', senderUid.value)
+            const senderSnapSnap = await getDoc(senderRef);
+            if(senderSnapSnap.exists()){
+                senderDet.value = senderSnapSnap.data()
+                console.log(senderSnapSnap.data())
+            }else{
+                error.value = 'Provider not found'
+            }
+        } catch (err) {
+            error.value = err.message || 'An error occrured while fetching data'
+        } finally {
+            isLoading.value = false
+        }
+    }
+
+    // FETCH USER'S DETAILS
+
     return {
         receiverDet,
         userDetails,
@@ -226,6 +371,8 @@ export const useChatStore = defineStore('chat', () => {
         sendMessage,
         deleteMessage,
         clearMessageListeners,
-        getCurrentUser
+        getCurrentUser,
+        saveToSubCollection,
+        userDet
     }
 })
