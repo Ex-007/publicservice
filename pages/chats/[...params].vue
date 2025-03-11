@@ -70,7 +70,7 @@ const providerDetails = ref({
 
 // UPDATE PROVIDER DETAILS
 const updateProviderDet = () => {
-  console.log(chatStore.userDetails)
+  // console.log(chatStore.userDetails)
   providerDetails.value.firstname = chatStore.userDetails.Firstname
   providerDetails.value.lastname = chatStore.userDetails.Lastname
   providerDetails.value.profilePicture = chatStore.userDetails.ProfilePicture
@@ -133,33 +133,33 @@ const fetchMessages = async () => {
 
 onMounted(async () => {
   try {
-    console.log('Component mounted, starting initialization...')
+    // console.log('Component mounted, starting initialization...')
     
     await chatStore.getCurrentUser()
-    console.log('Current user loaded')
+    // console.log('Current user loaded')
     
     await chatStore.receiverDet(providerUid)
-    console.log('Receiver details loaded')
+    // console.log('Receiver details loaded')
     
     await updateProviderDet()
-    console.log('Provider details updated')
+    // console.log('Provider details updated')
     
     await chatStore.userDet()
-    console.log('User details loaded')
+    // console.log('User details loaded')
     
     // Check if we have the required data before proceeding
     if (!providerUid || !providerDetails.value) {
-      console.error('Missing provider data:', { providerUid, providerDetails: providerDetails.value })
+      // console.error('Missing provider data:', { providerUid, providerDetails: providerDetails.value })
       return
     }
     
     const result = await chatStore.saveToSubCollection(providerUid, providerDetails.value)
-    console.log('Save to subcollection result:', result)
+    // console.log('Save to subcollection result:', result)
     
     await fetchMessages()
-    console.log('Messages fetched')
+    // console.log('Messages fetched')
   } catch (error) {
-    console.error('Error during component initialization:', error)
+    // console.error('Error during component initialization:', error)
   }
 })
 

@@ -12,6 +12,11 @@
     
     <!-- Data Loaded Successfully -->
     <div v-else-if="dataLoaded" class="provider-details">
+      <h3>Please Refresh if the details doesn't load</h3>
+
+    <!-- NOTIFICATION TO REFRESH THE PAGE IF THE PROVIDER'S DETAILS DOESNT LOAD -->
+     <div class="notify">
+     </div>
       <!-- Provider Header -->
       <div class="provider-header">
         <img :src="provider.profilePicture || '/img/profilepicture.jpeg'" alt="Provider Image" class="profile-image" />

@@ -44,60 +44,20 @@ export const useChatStore = defineStore('chat', () => {
     }
 
     // CHECK IF USER OR PROVIDER'S USERID EXISTS IN EACH DATABASE
-    // const saveToSubCollection = async (providerUid, providerDetails) => {
-    //     isLoading.value = true
-    //     error.value = null
-    //     try {
-    //         const { $db } = useNuxtApp()
-    //         const userChatRef = collection($db, 'REGISTERED_USERS', senderUid.value, 'CHATS')
-    //         const providerChatRef = collection($db, 'REGISTERED_PROVIDERS', providerUid, 'CHATS')
-            
-    //         const userQuery = query(userChatRef, where('providerUid', '==', providerUid))
-    //         const userSnapshot = await getDocs(userQuery)
-    //         if(userSnapshot.empty){
-    //             await addDoc(userChatRef, {
-    //                 providerUid: providerUid,
-    //                 serviceType: providerDetails.serviceType,
-    //                 Firstname: providerDetails.firstname,
-    //                 Lastname: providerDetails.lastname,
-    //                 providerImage: providerDetails.profilepicture
-    //             })
-    //             console.log('user added')
-    //         }else{
-    //             console.log('Provider already exists in chat')
-    //         }
-
-    //         const providerQuery = query(providerChatRef, where('userUid', '==', senderUid.value))
-    //         const providerSnapshot = await getDocs(providerQuery)
-    //         if(providerSnapshot.empty){
-    //             await addDoc(providerChatRef, {
-    //                 userUid: senderUid.value,
-    //                 Fullname: senderDet.Fullname,
-    //                 userImage: senderDet.ProfilePicture
-    //             })
-    //             console.log('provider added')
-    //         }
-    //         else{
-    //             console.log('User already exists in chat')
-    //         }
-    //     } catch (err) {
-    //         error.value = err.message || 'An error occrured while fetching data'
-    //     }
-    // }
-
+   
 
     // In your store
-const saveToSubCollection = async (providerUid, providerDetails) => {
+    const saveToSubCollection = async (providerUid, providerDetails) => {
     isLoading.value = true
     error.value = null
-    console.log('Starting saveToSubCollection with:', { providerUid, senderUid: senderUid.value })
+    // console.log('Starting saveToSubCollection with:', { providerUid, senderUid: senderUid.value })
     
     try {
         const { $db } = useNuxtApp()
         
         // Validate required data
         if (!senderUid.value || !providerUid) {
-            console.error('Missing UIDs:', { senderUid: senderUid.value, providerUid })
+            // console.error('Missing UIDs:', { senderUid: senderUid.value, providerUid })
             error.value = 'Missing user or provider ID'
             isLoading.value = false
             return false
@@ -111,7 +71,7 @@ const saveToSubCollection = async (providerUid, providerDetails) => {
         const userSnapshot = await getDocs(userQuery)
         
         if (userSnapshot.empty) {
-            console.log('User document does not exist, creating...')
+            // console.log('User document does not exist, creating...')
             await addDoc(userChatRef, {
                 providerUid: providerUid,
                 serviceType: providerDetails.serviceType,
@@ -120,9 +80,9 @@ const saveToSubCollection = async (providerUid, providerDetails) => {
                 providerImage: providerDetails.profilePicture,
                 createdAt: new Date() // Adding timestamp for debugging
             })
-            console.log('User document added successfully')
+            // console.log('User document added successfully')
         } else {
-            console.log('Provider already exists in user chat:', userSnapshot.docs.length, 'docs')
+            // console.log('Provider already exists in user chat:', userSnapshot.docs.length, 'docs')
         }
 
         // CHECKING FOR PROVIDERS
@@ -130,11 +90,11 @@ const saveToSubCollection = async (providerUid, providerDetails) => {
         const providerSnapshot = await getDocs(providerQuery)
         
         if (providerSnapshot.empty) {
-            console.log('Provider document does not exist, creating...')
+            // console.log('Provider document does not exist, creating...')
             
             // Check if senderDet is defined
-            if (!senderDet || !senderDet.Fullname) {
-                console.error('Missing senderDet data:', senderDet)
+            if (!senderDet || !senderDet.value.Fullname) {
+                // console.error('Missing senderDet data:', senderDet)
                 error.value = 'Missing sender details'
                 isLoading.value = false
                 return false
@@ -142,19 +102,19 @@ const saveToSubCollection = async (providerUid, providerDetails) => {
             
             await addDoc(providerChatRef, {
                 userUid: senderUid.value,
-                Fullname: senderDet.Fullname,
-                userImage: senderDet.ProfilePicture,
+                Fullname: senderDet.value.Fullname,
+                userImage: senderDet.value.ProfilePicture,
                 createdAt: new Date() 
             })
-            console.log('Provider document added successfully')
+            // console.log('Provider document added successfully')
         } else {
-            console.log('User already exists in provider chat:', providerSnapshot.docs.length, 'docs')
+            // console.log('User already exists in provider chat:', providerSnapshot.docs.length, 'docs')
         }
         
         isLoading.value = false
         return true
     } catch (err) {
-        console.error('Error in saveToSubCollection:', err)
+        // console.error('Error in saveToSubCollection:', err)
         error.value = err.message || 'An error occurred while saving chat data'
         isLoading.value = false
         return false
@@ -322,7 +282,7 @@ const saveToSubCollection = async (providerUid, providerDetails) => {
             const docSnap = await getDoc(docRef);
             if(docSnap.exists()){
                 userDetails.value = docSnap.data()
-                console.log(docSnap.data())
+                // console.log(docSnap.data())
             }else{
                 error.value = 'Provider not found'
             }
@@ -344,7 +304,7 @@ const saveToSubCollection = async (providerUid, providerDetails) => {
             const senderSnapSnap = await getDoc(senderRef);
             if(senderSnapSnap.exists()){
                 senderDet.value = senderSnapSnap.data()
-                console.log(senderSnapSnap.data())
+                // console.log(senderSnapSnap.data())
             }else{
                 error.value = 'Provider not found'
             }

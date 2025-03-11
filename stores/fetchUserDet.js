@@ -7,6 +7,7 @@ export const useUsersStore = defineStore('details', () => {
     const error = ref(null)
     const updateInfo = ref(null)
     const providers = ref([])
+    let chatList = ref([])
     const availableProviders = computed(() => providers.value.length)
 
 
@@ -173,7 +174,43 @@ export const useUsersStore = defineStore('details', () => {
         }
     };
     
+    // FUNCTION TO LIST OUT ALL THE CHATS
 
+    const fetchChats = async (userRegId) => {
+        isLoading.value = true
+        error.value = null
+        console.log('Fetching...', userRegId)
+    
+        try {
+            const { $db } = useNuxtApp()
+            const chatRef = collection($db, 'REGISTERED_USERS', userRegId, 'CHATS')
+            const snapshot = await getDocs(chatRef)
+            
+            if(snapshot.empty){
+                console.log('No chats found')
+                return []
+            }
+            
+            const chats = []
+            snapshot.forEach(doc => {
+                // console.log(doc.id, '=>', doc.data())
+                chats.push({
+                    id: doc.id,
+                    ...doc.data()
+                })
+            })
+            chatList.value = chats
+            console.log(chats)
+            
+            return chats
+        } catch (err) {
+            console.error('Error fetching chats:', err)
+            error.value = err.message || 'An error occurred while fetching data'
+            return []
+        } finally {
+            isLoading.value = false
+        }
+    }
 
 
 
@@ -195,6 +232,8 @@ export const useUsersStore = defineStore('details', () => {
         updateInfo,
         getProviderFromSearch,
         availableProviders,
-        providers
+        providers,
+        fetchChats,
+        chatList
     }
 })

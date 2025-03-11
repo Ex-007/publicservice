@@ -73,6 +73,37 @@
         <p>No providers found</p>
       </div>
     </div>
+
+
+    <div class="otherValue">
+      <!-- THE LEFT INFORMATION -->
+      <div class="leftValuer">
+        <button>Chats</button>
+        <button>Bookings</button>
+      </div>
+
+      <!-- THE RIGHT INFORMATION -->
+      <div class="rightValuer">
+        <div class="chatContainer">
+          <ul v-for="(chat, index) in usersDet.chatList" :key="index">
+            <li>
+              <nuxt-link :to="{ path: `/chats/${chat.providerUid}` }">
+                <div class="chat-card">
+                  <img :src="chat.profileImage || '/img/profilepicture.jpeg'" alt="Provider" class="profile-pic" />
+                  <div class="provider-info">
+                    <h3>{{ chat.Firstname + " " + chat.Lastname }}</h3>
+                    <p class="status">{{chat.serviceType }}</p>
+                  </div>
+                </div>
+              </nuxt-link>
+            </li>
+
+          </ul>
+        </div>
+      </div>
+    </div>
+
+
   </div>
   </template>
   
@@ -175,6 +206,7 @@ const logValue = async () => {
 onMounted(async () => {
   // console.log(userRegId)
       await usersDet.userDetailsFetch(userRegId)
+      await usersDet.fetchChats(userRegId)
       await updateProfile()
       
       // console.log("User details after mount:", userDetailss.value);
@@ -438,6 +470,41 @@ body{
     text-align: center;
     color: gray;
     font-style: italic;
+  }
+
+  .otherValue{
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .leftValuer{
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    /* align-items: center; */
+    gap: 10px;
+    width: 30%;
+    height: 100vh;
+    overflow-y: auto;
+    scroll-behavior: smooth;
+    padding: 5px;
+    box-sizing: border-box;
+    background-color: #007bff;
+    color: white;
+  }
+
+  .leftValuer>button{
+    background-color: #ffffff;
+    color: #007bff;
+  }
+  .rightValuer{
+    width: 70%;
+    height: 100vh;
+    overflow-y: auto;
+    scroll-behavior: smooth;
+    padding: 5px;
+    box-sizing: border-box;
   }
 
 
