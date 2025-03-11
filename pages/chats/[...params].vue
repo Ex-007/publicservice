@@ -46,7 +46,7 @@ const chatStore = useChatStore()
 
 // Get user ID and provider ID from route parameters
 const params = route.params.params || [];
-const [userId, providerUid] = params; 
+const [providerUid] = params; 
 
 // Reference to messages container for auto-scrolling
 const messagesContainer = ref(null)

@@ -140,7 +140,8 @@ const truncateDesciption = (description, wordLimit = 20) => {
 const startChat = () => {
   const userId = route.query.userId
   const providerId = route.params.id
-  router.push(`/chats/${userId}/${providerId}`)
+  router.push(`/chats/${providerId}`)
+  // router.push(`/chats/${userId}/${providerId}`)
 }
 
 const callProvider = () => {

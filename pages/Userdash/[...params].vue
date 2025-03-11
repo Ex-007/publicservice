@@ -35,7 +35,7 @@
      <!-- <div class="loadingValue" v-if="usersDet.isLoading">
       <h3>loading...</h3>
      </div> -->
-     <div class="animatedLoad" v-if="usersDet.isLoading"></div>
+     <!-- <div class="animatedLoad" v-if="usersDet.isLoading"></div> -->
 
       <div v-if="usersDet.availableProviders" class="results">
         <h2>Available Providers: {{ usersDet.availableProviders }}</h2>
@@ -89,8 +89,8 @@
             <li>
               <nuxt-link :to="{ path: `/chats/${chat.providerUid}` }">
                 <div class="chat-card">
-                  <img :src="chat.profileImage || '/img/profilepicture.jpeg'" alt="Provider" class="profile-pic" />
-                  <div class="provider-info">
+                  <img :src="chat.providerImage || '/img/profilepicture.jpeg'" alt="Provider" class="profile-pic" />
+                  <div class="provider-infoSection">
                     <h3>{{ chat.Firstname + " " + chat.Lastname }}</h3>
                     <p class="status">{{chat.serviceType }}</p>
                   </div>
@@ -220,6 +220,40 @@ body{
     background-color: black;
     color: white;
 }
+
+.chat-card{
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 10px;
+    background-color: #007bff;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    cursor: pointer;
+}
+
+.chat-card>img{
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+}
+.provider-infoSection{
+  color: white;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 .animatedLoad{
     height: 80px;
